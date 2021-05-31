@@ -1,0 +1,103 @@
+---
+title: "Global Trends of CO2 Emission and Effects on the Global Hapinnes Index"
+subtitle: "Data Analysis Project - Digital Sciences for Hightech"
+author:
+- "Guy Krothammer, Yarden Katash, Guy Dahan"
+output: 
+  html_notebook:
+    toc: true
+    number_section: false
+    fig_width: 10
+    fig_height: 10
+    fig_caption: true
+    df_print: kable
+    fontsize: 11pt
+    theme: united
+---
+
+# Introduction
+
+## Background
+
+This project was done as a part of "Data Analysis" course as part of our teams 
+studies in Digital Sciences for High-Tech in the University of Tel-Aviv. 
+Our team has great interest in using our studies for exploring and in the future maybe even
+developing tools for improving the way we treat our planet. Therefore our subject is
+CO2 emissions in congestion with the world happinnes index. 
+
+## Goals
+
+1. Find the trends of CO2 emissions in different countries along the years 1700-2017.
+2. Find what countries had greater growth in emissions and in which years.
+3. Compare the leading countries with the highest recent trends of growth or decreased emission
+in correlation with the current and previous UN happines Index. 
+
+# Part 1: Importing Data and Packages
+
+## Packages Import
+
+```{r}
+
+# install and import packages
+install.packages("ggchicklet", repos = "https://cinc.rud.is") # for rounded corners 
+install.packages("cowplot") #patch plots
+install.packages("hrbrthemes", repos = c("https://cinc.rud.is", "https://cloud.r-project.org/")) #beautiful theme
+install.packages("waffle", repos = "https://cinc.rud.is") #waffle plot
+install.packages("ggalt") #dumbell plot
+install.packages("GGally") # correlation matrix
+install.packages("remotes") # to install the relative weight package
+remotes::install_github("martinctc/rwa") # relative weight analysis
+
+# import library
+library(tidyverse) 
+library(ggchicklet)
+library(cowplot)
+library(hrbrthemes)
+library(ggalt)
+library(GGally)
+library(rwa)
+```
+
+## Data import
+
+```{r}
+happy_index_2021 <- "https://www.kaggle.com/ajaypalsinghlo/world-happiness-report-2021/download"
+emission <- "https://www.kaggle.com/yoannboyere/co2-ghg-emissionsdata/download"
+
+# df_2005 <- read.csv("../Data/world-happiness-report-2005-2020.csv")
+df_2021 <- read.csv(happy_index_2021)
+df_emiss <- read.csv(emission)
+head(df_emiss)
+```
+# Part 2: Tidying the Data
+
+## 
+
+```{r}
+
+```
+
+# Part 3: Proccesing of the Data
+
+## Visualisation 
+
+### 3.1 
+```{r}
+
+
+```
+
+### 3.2 
+
+```{r}
+
+
+```
+
+### 3.3
+
+```{r}
+
+```
+
+## Modelling
