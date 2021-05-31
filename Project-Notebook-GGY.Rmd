@@ -45,7 +45,8 @@ install.packages("hrbrthemes", repos = c("https://cinc.rud.is", "https://cloud.r
 install.packages("waffle", repos = "https://cinc.rud.is") #waffle plot
 install.packages("ggalt") #dumbell plot
 install.packages("GGally") # correlation matrix
-install.packages("remotes") # to install the relative weight package
+install.packages
+install.packages("Hmisc")# to install the relative weight package
 remotes::install_github("martinctc/rwa") # relative weight analysis
 
 # import library
@@ -56,24 +57,43 @@ library(hrbrthemes)
 library(ggalt)
 library(GGally)
 library(rwa)
+library(readr)
+library(Hmisc)
+library(tibble)
 ```
 
 ## Data import
 
 ```{r}
-happy_index_2021 <- "https://www.kaggle.com/ajaypalsinghlo/world-happiness-report-2021/download"
-emission <- "https://www.kaggle.com/yoannboyere/co2-ghg-emissionsdata/download"
+happy_index_2005 <- "Data/world-happiness-report-2005-2020.csv" 
+happy_index_2021 <- "Data/world-happiness-report-2021.csv"
+emission <- "Data/co2_emission.csv" # TODO The headline isn't loaded well for column 4
 
-# df_2005 <- read.csv("../Data/world-happiness-report-2005-2020.csv")
+df_2005 <- read.csv(happy_index_2005)
 df_2021 <- read.csv(happy_index_2021)
-df_emiss <- read.csv(emission)
-head(df_emiss)
+df_emiss <- read.csv(emission, col.names = c("Entity", "Code" , "Year", "co2"))
+
+as_tibble(df_2005)
+as_tibble(df_2021)
+as_tibble(df_emiss)
+
 ```
+
+As seen in the table above, the main dataset regarding emissions has only 4 features, of which 2 are identical (countries and country code). 
+
+
+```{r}
+summary(df_emiss)
+```
+
+
 # Part 2: Tidying the Data
 
 ## 
 
 ```{r}
+# We need to add "trednds" column
+
 
 ```
 
@@ -81,10 +101,16 @@ head(df_emiss)
 
 ## Visualisation 
 
-### 3.1 
+### 3.1 Top 10 Trending Countries
 ```{r}
-
-
+# TODO write a code to get top 10 trends, create trends column
+ 
+df = filter(df_emiss, Entity == "Israel")
+g <- ggplot(data = df, aes(x = Year, y = co2, group = Entity) ) + 
+    geom_line()
+    
+g <- g + labs(title = "Israel Emissions in metric tons of CO2 by Years")
+g
 ```
 
 ### 3.2 
