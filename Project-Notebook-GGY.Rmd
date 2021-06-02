@@ -47,7 +47,7 @@ install.packages("ggalt") #dumbell plot
 install.packages("GGally") # correlation matrix
 install.packages
 install.packages("Hmisc")# to install the relative weight package
-remotes::install_github("martinctc/rwa") # relative weight analysis
+remotes::install_github("martinctc/rwa") # relative weight analys
 
 # import library
 library(tidyverse) 
@@ -76,6 +76,7 @@ df_emiss <- read.csv(emission, col.names = c("Entity", "Code" , "Year", "co2"))
 as_tibble(df_2005)
 as_tibble(df_2021)
 as_tibble(df_emiss)
+#TODO add population df, select columns
 
 ```
 
@@ -92,7 +93,21 @@ summary(df_emiss)
 ## 
 
 ```{r}
-# We need to add "trednds" column
+filter(df_emiss, Year < 1950, preserve = FALSE) # TODO filter by year larger than 1950, fix code
+
+df_emiss <-df_emiss %>% # add dif column
+  group_by(Entity) %>%
+  mutate(Diff = co2 - lag(co2, default = co2[1]))
+
+#TODO add population by years to Df_emiss
+
+#TODO change column names to be same in all data, and some are imported wrong
+
+#TODO population country names to be the same
+
+#TODO add column total diff for 50 years, 40 years : until 10 years
+
+#TODO qeevcolumn of normalised emission: co2/population by year
 
 
 ```
@@ -101,34 +116,87 @@ summary(df_emiss)
 
 ## Visualisation 
 
-### 3.1 Top 10 Trending Countries
+### 3.1 Single Country Emission Graph
+
 ```{r}
-# TODO write a code to get top 10 trends, create trends column
- 
-df = filter(df_emiss, Entity == "Spain")
+#TODO add dropbox to choose which country is shown (by HTML CODE)
+
+df = filter(df_emiss, Entity == "United Kingdom")
 g <- ggplot(data = df, aes(x = Year, y = co2, group = Entity) ) + 
     geom_line()
     
-g <- g + labs(title = "Israel Emissions in metric tons of CO2 by Years")
+g <- g + labs(title = "United Kingdom Emissions in metric tons of CO2 by Years")
 g
 ```
 
-### 3.2 
+### 3.2 Happinness Trends in Single Country 
 
 ```{r}
+#TODO maybe drop this later
 
+colnames(df_2005)
+names(df_2005)[1] <- "Entity"
+
+df = filter(df_2005, Entity == "United Kingdom")
+g <- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
+    geom_line()
+    
+g <- g + labs(title = "Contries Hapinness by Years")
+g
 
 ```
 
 ### 3.3
 
 ```{r}
-print("Hello")
+
 ```
 
-## Modelling
+### Year-on-year change in CO₂ for Top 10 Countries
 
 ```{r}
 
+top_emiss_2017 <- df_emiss %>%
+  filter(Year == 2017) %>%
+  filter(Code != '') %>%
+  filter(Entity != "World") %>%
+  top_n( 10, co2) %>%
+  arrange(desc(co2)) %>%
+  head(10)
+  
+top_countries = top_emiss_2017$Entity
 ```
+
+```{r}
+
+g <- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
+    geom_line()
+    
+g <- g + labs(title = "Contries Hapinness by Years")
+g
+```
+
+
+```{r}
+g <- ggplot(data = df_emiss[df_emiss$Entity %in% top_countries, ] 
+                          , aes(x = Year, y = co2, group = Entity)) + 
+    geom_line()
+g <- g + labs(title = "Top 10 Countries by CO2 Emissions")
+g
+
+df_emiss[df_emiss$Entity %in% top_countries, ] 
+```
+
+
+## Modelling
+
+Our suggestions:
+1. There is correlation between the total trend and current happiness index
+2. There is correlation between current emission normalised by population to current hapinness index
+
+```{r}
+
+
+```
+
 
