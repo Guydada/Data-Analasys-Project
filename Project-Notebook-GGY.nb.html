@@ -226,22 +226,6 @@ pre code {
 <li><a href="#part-1-importing-data-and-packages">Part 1: Importing Data and Packages</a>
 <ul>
 <li><a href="#packages-import">Packages Import</a></li>
-<li><a href="#data-import">Data import</a></li>
-</ul></li>
-<li><a href="#part-2-tidying-the-data">Part 2: Tidying the Data</a>
-<ul>
-<li><a href="#section"></a></li>
-</ul></li>
-<li><a href="#part-3-proccesing-of-the-data">Part 3: Proccesing of the Data</a>
-<ul>
-<li><a href="#visualisation">Visualisation</a>
-<ul>
-<li><a href="#single-country-emission-graph">3.1 Single Country Emission Graph</a></li>
-<li><a href="#happinness-trends-in-single-country">3.2 Happinness Trends in Single Country</a></li>
-<li><a href="#section-1">3.3</a></li>
-<li><a href="#year-on-year-change-in-co₂-for-top-10-countries">Year-on-year change in CO₂ for Top 10 Countries</a></li>
-</ul></li>
-<li><a href="#modelling">Modelling</a></li>
 </ul></li>
 </ul>
 </div>
@@ -268,25 +252,41 @@ pre code {
 <h2>Packages Import</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbnN0YWxsIGFuZCBpbXBvcnQgcGFja2FnZXNcbmluc3RhbGwucGFja2FnZXMoXCJnZ2NoaWNrbGV0XCIsIHJlcG9zID0gXCJodHRwczovL2NpbmMucnVkLmlzXCIpICMgZm9yIHJvdW5kZWQgY29ybmVycyBcbmluc3RhbGwucGFja2FnZXMoXCJjb3dwbG90XCIpICNwYXRjaCBwbG90c1xuaW5zdGFsbC5wYWNrYWdlcyhcImhyYnJ0aGVtZXNcIiwgcmVwb3MgPSBjKFwiaHR0cHM6Ly9jaW5jLnJ1ZC5pc1wiLCBcImh0dHBzOi8vY2xvdWQuci1wcm9qZWN0Lm9yZy9cIikpICNiZWF1dGlmdWwgdGhlbWVcbmluc3RhbGwucGFja2FnZXMoXCJ3YWZmbGVcIiwgcmVwb3MgPSBcImh0dHBzOi8vY2luYy5ydWQuaXNcIikgI3dhZmZsZSBwbG90XG5pbnN0YWxsLnBhY2thZ2VzKFwiZ2dhbHRcIikgI2R1bWJlbGwgcGxvdFxuaW5zdGFsbC5wYWNrYWdlcyhcIkdHYWxseVwiKSAjIGNvcnJlbGF0aW9uIG1hdHJpeFxuaW5zdGFsbC5wYWNrYWdlc1xuaW5zdGFsbC5wYWNrYWdlcyhcIkhtaXNjXCIpIyB0byBpbnN0YWxsIHRoZSByZWxhdGl2ZSB3ZWlnaHQgcGFja2FnZVxucmVtb3Rlczo6aW5zdGFsbF9naXRodWIoXCJtYXJ0aW5jdGMvcndhXCIpICMgcmVsYXRpdmUgd2VpZ2h0IGFuYWx5c1xuYGBgIn0= -->
-<pre class="r"><code># install and import packages
-install.packages(&quot;ggchicklet&quot;, repos = &quot;https://cinc.rud.is&quot;) # for rounded corners 
-install.packages(&quot;cowplot&quot;) #patch plots
-install.packages(&quot;hrbrthemes&quot;, repos = c(&quot;https://cinc.rud.is&quot;, &quot;https://cloud.r-project.org/&quot;)) #beautiful theme
-install.packages(&quot;waffle&quot;, repos = &quot;https://cinc.rud.is&quot;) #waffle plot
-install.packages(&quot;ggalt&quot;) #dumbell plot
-install.packages(&quot;GGally&quot;) # correlation matrix
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBpbnN0YWxsIGFuZCBpbXBvcnQgcGFja2FnZXNcbmluc3RhbGwucGFja2FnZXMoXFxnZ2NoaWNrbGV0XFwsIHJlcG9zID0gXFxodHRwczovL2NpbmMucnVkLmlzXFwpICMgZm9yIHJvdW5kZWQgY29ybmVycyBcbmluc3RhbGwucGFja2FnZXMoXFxjb3dwbG90XFwpICNwYXRjaCBwbG90c1xuaW5zdGFsbC5wYWNrYWdlcyhcXGhyYnJ0aGVtZXNcXCwgcmVwb3MgPSBjKFxcaHR0cHM6Ly9jaW5jLnJ1ZC5pc1xcLCBcXGh0dHBzOi8vY2xvdWQuci1wcm9qZWN0Lm9yZy9cXCkpICNiZWF1dGlmdWwgdGhlbWVcbmluc3RhbGwucGFja2FnZXMoXFx3YWZmbGVcXCwgcmVwb3MgPSBcXGh0dHBzOi8vY2luYy5ydWQuaXNcXCkgI3dhZmZsZSBwbG90XG5pbnN0YWxsLnBhY2thZ2VzKFxcZ2dhbHRcXCkgI2R1bWJlbGwgcGxvdFxuaW5zdGFsbC5wYWNrYWdlcyhcXEdHYWxseVxcKSAjIGNvcnJlbGF0aW9uIG1hdHJpeFxuaW5zdGFsbC5wYWNrYWdlc1xuaW5zdGFsbC5wYWNrYWdlcyhcXEhtaXNjXFwpIyB0byBpbnN0YWxsIHRoZSByZWxhdGl2ZSB3ZWlnaHQgcGFja2FnZVxucmVtb3Rlczo6aW5zdGFsbF9naXRodWIoXFxtYXJ0aW5jdGMvcndhXFwpICMgcmVsYXRpdmUgd2VpZ2h0IGFuYWx5c1xuYGBgXG5gYGAifQ== -->
+<pre class="r"><code>```r
+# install and import packages
+install.packages(\ggchicklet\, repos = \https://cinc.rud.is\) # for rounded corners 
+install.packages(\cowplot\) #patch plots
+install.packages(\hrbrthemes\, repos = c(\https://cinc.rud.is\, \https://cloud.r-project.org/\)) #beautiful theme
+install.packages(\waffle\, repos = \https://cinc.rud.is\) #waffle plot
+install.packages(\ggalt\) #dumbell plot
+install.packages(\GGally\) # correlation matrix
 install.packages
-install.packages(&quot;Hmisc&quot;)# to install the relative weight package
-remotes::install_github(&quot;martinctc/rwa&quot;) # relative weight analys</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>ORI BORI</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbXBvcnQgbGlicmFyeVxubGlicmFyeSh0aWR5dmVyc2UpIFxubGlicmFyeShnZ2NoaWNrbGV0KVxubGlicmFyeShjb3dwbG90KVxubGlicmFyeShocmJydGhlbWVzKVxubGlicmFyeShnZ2FsdClcbmxpYnJhcnkoR0dhbGx5KVxubGlicmFyeShyd2EpXG5saWJyYXJ5KHJlYWRyKVxubGlicmFyeShIbWlzYylcbmxpYnJhcnkodGliYmxlKVxuYGBgIn0= -->
-<pre class="r"><code># import library
+install.packages(\Hmisc\)# to install the relative weight package
+remotes::install_github(\martinctc/rwa\) # relative weight analys</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+ORI BORI
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBpbXBvcnQgbGlicmFyeVxubGlicmFyeSh0aWR5dmVyc2UpIFxubGlicmFyeShnZ2NoaWNrbGV0KVxubGlicmFyeShjb3dwbG90KVxubGlicmFyeShocmJydGhlbWVzKVxubGlicmFyeShnZ2FsdClcbmxpYnJhcnkoR0dhbGx5KVxubGlicmFyeShyd2EpXG5saWJyYXJ5KHJlYWRyKVxubGlicmFyeShIbWlzYylcbmxpYnJhcnkodGliYmxlKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+# import library
 library(tidyverse) 
 library(ggchicklet)
 library(cowplot)
@@ -297,50 +297,92 @@ library(rwa)
 library(readr)
 library(Hmisc)
 library(tibble)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="data-import" class="section level2">
-<h2>Data import</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaGFwcHlfaW5kZXhfMjAwNSA8LSBcIkRhdGEvd29ybGQtaGFwcGluZXNzLXJlcG9ydC0yMDA1LTIwMjAuY3N2XCIgXG5oYXBweV9pbmRleF8yMDIxIDwtIFwiRGF0YS93b3JsZC1oYXBwaW5lc3MtcmVwb3J0LTIwMjEuY3N2XCJcbmVtaXNzaW9uIDwtIFwiRGF0YS9jbzJfZW1pc3Npb24uY3N2XCIgIyBUT0RPIFRoZSBoZWFkbGluZSBpc24ndCBsb2FkZWQgd2VsbCBmb3IgY29sdW1uIDRcbnBvcHVsYXRpb24gPC1cIkRhdGEvcG9wdWxhdGlvbi5jc3ZcIlxuXG5kZl8yMDA1IDwtIHJlYWQuY3N2KGhhcHB5X2luZGV4XzIwMDUpXG5kZl8yMDIxIDwtIHJlYWQuY3N2KGhhcHB5X2luZGV4XzIwMjEpXG5kZl9lbWlzcyA8LSByZWFkLmNzdihlbWlzc2lvbiwgY29sLm5hbWVzID0gYyhcIkVudGl0eVwiLCBcIkNvZGVcIiAsIFwiWWVhclwiLCBcImNvMlwiKSlcbmRmX3BvcCA8LSByZWFkLmNzdihwb3B1bGF0aW9uKVxuXG5hc190aWJibGUoZGZfMjAwNSlcbmFzX3RpYmJsZShkZl8yMDIxKVxuYXNfdGliYmxlKGRmX2VtaXNzKVxuYXNfdGliYmxlKGRmX3BvcClcbmBgYCJ9 -->
-<pre class="r"><code>happy_index_2005 &lt;- &quot;Data/world-happiness-report-2005-2020.csv&quot; 
-happy_index_2021 &lt;- &quot;Data/world-happiness-report-2021.csv&quot;
-emission &lt;- &quot;Data/co2_emission.csv&quot; # TODO The headline isn&#39;t loaded well for column 4
-population &lt;-&quot;Data/population.csv&quot;
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+## Data import
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuaGFwcHlfaW5kZXhfMjAwNSA8LSBcXERhdGEvd29ybGQtaGFwcGluZXNzLXJlcG9ydC0yMDA1LTIwMjAuY3N2XFwgXG5oYXBweV9pbmRleF8yMDIxIDwtIFxcRGF0YS93b3JsZC1oYXBwaW5lc3MtcmVwb3J0LTIwMjEuY3N2XFxcbmVtaXNzaW9uIDwtIFxcRGF0YS9jbzJfZW1pc3Npb24uY3N2XFwgIyBUT0RPIFRoZSBoZWFkbGluZSBpc24ndCBsb2FkZWQgd2VsbCBmb3IgY29sdW1uIDRcbnBvcHVsYXRpb24gPC1cXERhdGEvcG9wdWxhdGlvbi5jc3ZcXFxuXG5kZl8yMDA1IDwtIHJlYWQuY3N2KGhhcHB5X2luZGV4XzIwMDUpXG5kZl8yMDIxIDwtIHJlYWQuY3N2KGhhcHB5X2luZGV4XzIwMjEpXG5kZl9lbWlzcyA8LSByZWFkLmNzdihlbWlzc2lvbiwgY29sLm5hbWVzID0gYyhcXEVudGl0eVxcLCBcXENvZGVcXCAsIFxcWWVhclxcLCBcXGNvMlxcKSlcbmRmX3BvcCA8LSByZWFkLmNzdihwb3B1bGF0aW9uKVxuXG5hc190aWJibGUoZGZfMjAwNSlcbmFzX3RpYmJsZShkZl8yMDIxKVxuYXNfdGliYmxlKGRmX2VtaXNzKVxuYXNfdGliYmxlKGRmX3BvcClcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+happy_index_2005 &lt;- \Data/world-happiness-report-2005-2020.csv\ 
+happy_index_2021 &lt;- \Data/world-happiness-report-2021.csv\
+emission &lt;- \Data/co2_emission.csv\ # TODO The headline isn&#39;t loaded well for column 4
+population &lt;-\Data/population.csv\
 
 df_2005 &lt;- read.csv(happy_index_2005)
 df_2021 &lt;- read.csv(happy_index_2021)
-df_emiss &lt;- read.csv(emission, col.names = c(&quot;Entity&quot;, &quot;Code&quot; , &quot;Year&quot;, &quot;co2&quot;))
+df_emiss &lt;- read.csv(emission, col.names = c(\Entity\, \Code\ , \Year\, \co2\))
 df_pop &lt;- read.csv(population)
 
 as_tibble(df_2005)
 as_tibble(df_2021)
 as_tibble(df_emiss)
 as_tibble(df_pop)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>As seen in the table above, the main dataset regarding emissions has only 4 features, of which 2 are identical (countries and country code).</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShkZl9lbWlzcylcbmBgYCJ9 -->
-<pre class="r"><code>summary(df_emiss)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="part-2-tidying-the-data" class="section level1">
-<h1>Part 2: Tidying the Data</h1>
-<div id="section" class="section level2">
-<h2></h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsdGVyKGRmX2VtaXNzLCBZZWFyIDwgMTk1MCwgcHJlc2VydmUgPSBGQUxTRSkgIyBUT0RPIGZpbHRlciBieSB5ZWFyIGxhcmdlciB0aGFuIDE5NTAsIGZpeCBjb2RlXG5cbmRmX2VtaXNzIDwtZGZfZW1pc3MgJT4lICMgYWRkIGRpZiBjb2x1bW5cbiAgZ3JvdXBfYnkoRW50aXR5KSAlPiVcbiAgbXV0YXRlKERpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzFdKSlcblxuZGZfcG9wX3RvX21lcmdlIDwtIGRmX3BvcCAlPiVcbiAgZmlsdGVyKFllYXIgPiAxOTQ5KVxuXG5kZl9lbWlzc190b19tZXJnZSA8LSBkZl9lbWlzcyAlPiVcbiAgZmlsdGVyKFllYXIgPiAxOTQ5KVxuXG5kZl9lbWlzc190b19tZXJnZSRFbnRpdHkgPC0gYXMuY2hhcmFjdGVyKGRmX2VtaXNzX3RvX21lcmdlJEVudGl0eSlcbmRmX3BvcF90b19tZXJnZSRFbnRpdHkgPC0gYXMuY2hhcmFjdGVyKGRmX3BvcF90b19tZXJnZSRFbnRpdHkpXG5cbmxpYnJhcnkoZHBseXIpXG5kZl9hbGwgPC0gZnVsbF9qb2luKGRmX2VtaXNzX3RvX21lcmdlLCBkZl9wb3BfdG9fbWVyZ2UsIGJ5ID0gYygnRW50aXR5JywnWWVhcicpKVxuXG5kcm9wcyA8LSBjKFwiQ29kZS55XCIpXG5kZl9hbGwgPC1kZl9hbGxbLCAhKG5hbWVzKGRmX2FsbCkgJWluJSBkcm9wcyldXG5cbm5hbWVzKGRmX2FsbClbbmFtZXMoZGZfYWxsKSA9PSBcIkNvZGUueFwiXSA8LSBcIkNvZGVcIlxuXG52aWV3KGRmX2FsbClcblxuI1RPRE8gYWRkIHBvcHVsYXRpb24gYnkgeWVhcnMgdG8gRGZfZW1pc3NcblxuZGZfZW1pc3NfYWJvdmVfMTk1MCA8LSBkZl9lbWlzcyAlPiUgZmlsdGVyKFllYXIgPj0gMTk1MCkgIyBmaWx0ZXJlZCBieSB5ZWFycyBsYXJnZXIgdGhhbiAxOTUwXG52aWV3KGRmX2VtaXNzX2Fib3ZlXzE5NTApXG5cbmRmX2VtaXNzIDwtZGZfZW1pc3MgJT4lICMgYWRkIGRpZiBjb2x1bW5cbiAgZ3JvdXBfYnkoRW50aXR5KSAlPiVcbiAgbXV0YXRlKERpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzFdKSlcbnZpZXcoZGZfZW1pc3MpXG5cbmRmX3NraXBwaW5nX2J5XzEwIDwtIGRmX2VtaXNzX2Fib3ZlXzE5NTAgJT4lIHNsaWNlKHdoaWNoKFllYXIgJSUgMTAgPT0gMCB8IFllYXIgPT0gMjAxNykpXG52aWV3KGRmX3NraXBwaW5nX2J5XzEwKVxuXG5kZl9lbWlzcyA8LSBkZl9za2lwcGluZ19ieV8xMCAlPiUgIyBhZGQgMTAgeWVhcnMgZGlmIGNvbHVtblxuICBncm91cF9ieShFbnRpdHkpICU+JVxuICBtdXRhdGUoVGVuX3llYXJzX0RpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzFdKSlcbnZpZXcoZGZfZW1pc3MpXG5cbmRmX2VtaXNzIDwtIGRmX2VtaXNzICU+JSAjIFRPRE8gYWRkIDIwIHllYXJzIGRpZiBjb2x1bW4gLSBub3QgZG9uZS5cbiAgZ3JvdXBfYnkoRW50aXR5KSAlPiVcbiAgbXV0YXRlKFRld250eV95ZWFyc19EaWZmID0gY28yIC0gbGFnKGNvMiwgZGVmYXVsdCA9IGNvMlsyXSkpXG52aWV3KGRmX2VtaXNzKVxuXG4jVE9ETyBxZWV2Y29sdW1uIG9mIG5vcm1hbGlzZWQgZW1pc3Npb246IGNvMi9wb3B1bGF0aW9uIGJ5IHllYXJcblxuXG5gYGAifQ== -->
-<pre class="r"><code>filter(df_emiss, Year &lt; 1950, preserve = FALSE) # TODO filter by year larger than 1950, fix code
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+As seen in the table above, the main dataset regarding emissions has only 4 features, of which 2 are identical (countries and country code). 
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc3VtbWFyeShkZl9lbWlzcylcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+summary(df_emiss)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+# Part 2: Tidying the Data
+
+## 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZmlsdGVyKGRmX2VtaXNzLCBZZWFyIDwgMTk1MCwgcHJlc2VydmUgPSBGQUxTRSkgIyBUT0RPIGZpbHRlciBieSB5ZWFyIGxhcmdlciB0aGFuIDE5NTAsIGZpeCBjb2RlXG5cbmRmX2VtaXNzIDwtZGZfZW1pc3MgJT4lICMgYWRkIGRpZiBjb2x1bW5cbiAgZ3JvdXBfYnkoRW50aXR5KSAlPiVcbiAgbXV0YXRlKERpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzFdKSlcblxuZGZfcG9wX3RvX21lcmdlIDwtIGRmX3BvcCAlPiVcbiAgZmlsdGVyKFllYXIgPiAxOTQ5KVxuXG5kZl9lbWlzc190b19tZXJnZSA8LSBkZl9lbWlzcyAlPiVcbiAgZmlsdGVyKFllYXIgPiAxOTQ5KVxuXG5kZl9lbWlzc190b19tZXJnZSRFbnRpdHkgPC0gYXMuY2hhcmFjdGVyKGRmX2VtaXNzX3RvX21lcmdlJEVudGl0eSlcbmRmX3BvcF90b19tZXJnZSRFbnRpdHkgPC0gYXMuY2hhcmFjdGVyKGRmX3BvcF90b19tZXJnZSRFbnRpdHkpXG5cbmxpYnJhcnkoZHBseXIpXG5kZl9hbGwgPC0gZnVsbF9qb2luKGRmX2VtaXNzX3RvX21lcmdlLCBkZl9wb3BfdG9fbWVyZ2UsIGJ5ID0gYygnRW50aXR5JywnWWVhcicpKVxuXG5kcm9wcyA8LSBjKFxcQ29kZS55XFwpXG5kZl9hbGwgPC1kZl9hbGxbLCAhKG5hbWVzKGRmX2FsbCkgJWluJSBkcm9wcyldXG5cbm5hbWVzKGRmX2FsbClbbmFtZXMoZGZfYWxsKSA9PSBcXENvZGUueFxcXSA8LSBcXENvZGVcXFxuXG52aWV3KGRmX2FsbClcblxuI1RPRE8gYWRkIHBvcHVsYXRpb24gYnkgeWVhcnMgdG8gRGZfZW1pc3NcblxuZGZfZW1pc3NfYWJvdmVfMTk1MCA8LSBkZl9lbWlzcyAlPiUgZmlsdGVyKFllYXIgPj0gMTk1MCkgIyBmaWx0ZXJlZCBieSB5ZWFycyBsYXJnZXIgdGhhbiAxOTUwXG52aWV3KGRmX2VtaXNzX2Fib3ZlXzE5NTApXG5cbmRmX2VtaXNzIDwtZGZfZW1pc3MgJT4lICMgYWRkIGRpZiBjb2x1bW5cbiAgZ3JvdXBfYnkoRW50aXR5KSAlPiVcbiAgbXV0YXRlKERpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzFdKSlcbnZpZXcoZGZfZW1pc3MpXG5cbmRmX3NraXBwaW5nX2J5XzEwIDwtIGRmX2VtaXNzX2Fib3ZlXzE5NTAgJT4lIHNsaWNlKHdoaWNoKFllYXIgJSUgMTAgPT0gMCB8IFllYXIgPT0gMjAxNykpXG52aWV3KGRmX3NraXBwaW5nX2J5XzEwKVxuXG5kZl9lbWlzcyA8LSBkZl9za2lwcGluZ19ieV8xMCAlPiUgIyBhZGQgMTAgeWVhcnMgZGlmIGNvbHVtblxuICBncm91cF9ieShFbnRpdHkpICU+JVxuICBtdXRhdGUoVGVuX3llYXJzX0RpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzFdKSlcbnZpZXcoZGZfZW1pc3MpXG5cbmRmX2VtaXNzIDwtIGRmX2VtaXNzICU+JSAjIFRPRE8gYWRkIDIwIHllYXJzIGRpZiBjb2x1bW4gLSBub3QgZG9uZS5cbiAgZ3JvdXBfYnkoRW50aXR5KSAlPiVcbiAgbXV0YXRlKFRld250eV95ZWFyc19EaWZmID0gY28yIC0gbGFnKGNvMiwgZGVmYXVsdCA9IGNvMlsyXSkpXG52aWV3KGRmX2VtaXNzKVxuXG4jVE9ETyBxZWV2Y29sdW1uIG9mIG5vcm1hbGlzZWQgZW1pc3Npb246IGNvMi9wb3B1bGF0aW9uIGJ5IHllYXJcblxuXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+filter(df_emiss, Year &lt; 1950, preserve = FALSE) # TODO filter by year larger than 1950, fix code
 
 df_emiss &lt;-df_emiss %&gt;% # add dif column
   group_by(Entity) %&gt;%
@@ -358,10 +400,10 @@ df_pop_to_merge$Entity &lt;- as.character(df_pop_to_merge$Entity)
 library(dplyr)
 df_all &lt;- full_join(df_emiss_to_merge, df_pop_to_merge, by = c(&#39;Entity&#39;,&#39;Year&#39;))
 
-drops &lt;- c(&quot;Code.y&quot;)
+drops &lt;- c(\Code.y\)
 df_all &lt;-df_all[, !(names(df_all) %in% drops)]
 
-names(df_all)[names(df_all) == &quot;Code.x&quot;] &lt;- &quot;Code&quot;
+names(df_all)[names(df_all) == \Code.x\] &lt;- \Code\
 
 view(df_all)
 
@@ -390,117 +432,215 @@ view(df_emiss)
 
 #TODO qeevcolumn of normalised emission: co2/population by year
 </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="part-3-proccesing-of-the-data" class="section level1">
-<h1>Part 3: Proccesing of the Data</h1>
-<div id="visualisation" class="section level2">
-<h2>Visualisation</h2>
-<div id="single-country-emission-graph" class="section level3">
-<h3>3.1 Single Country Emission Graph</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1RPRE8gYWRkIGRyb3Bib3ggdG8gY2hvb3NlIHdoaWNoIGNvdW50cnkgaXMgc2hvd24gKGJ5IEhUTUwgQ09ERSlcblxuZGYgPSBmaWx0ZXIoZGZfZW1pc3MsIEVudGl0eSA9PSBcIlVuaXRlZCBLaW5nZG9tXCIpXG5nIDwtIGdncGxvdChkYXRhID0gZGYsIGFlcyh4ID0gWWVhciwgeSA9IGNvMiwgZ3JvdXAgPSBFbnRpdHkpICkgKyBcbiAgICBnZW9tX2xpbmUoKVxuICAgIFxuZyA8LSBnICsgbGFicyh0aXRsZSA9IFwiVW5pdGVkIEtpbmdkb20gRW1pc3Npb25zIGluIG1ldHJpYyB0b25zIG9mIENPMiBieSBZZWFyc1wiKVxuZ1xuYGBgIn0= -->
-<pre class="r"><code>#TODO add dropbox to choose which country is shown (by HTML CODE)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
 
-df = filter(df_emiss, Entity == &quot;United Kingdom&quot;)
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+# Part 3: Proccesing of the Data
+
+## Visualisation 
+
+### 3.1 Single Country Emission Graph
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuI1RPRE8gYWRkIGRyb3Bib3ggdG8gY2hvb3NlIHdoaWNoIGNvdW50cnkgaXMgc2hvd24gKGJ5IEhUTUwgQ09ERSlcblxuZGYgPSBmaWx0ZXIoZGZfZW1pc3MsIEVudGl0eSA9PSBcXFVuaXRlZCBLaW5nZG9tXFwpXG5nIDwtIGdncGxvdChkYXRhID0gZGYsIGFlcyh4ID0gWWVhciwgeSA9IGNvMiwgZ3JvdXAgPSBFbnRpdHkpICkgKyBcbiAgICBnZW9tX2xpbmUoKVxuICAgIFxuZyA8LSBnICsgbGFicyh0aXRsZSA9IFxcVW5pdGVkIEtpbmdkb20gRW1pc3Npb25zIGluIG1ldHJpYyB0b25zIG9mIENPMiBieSBZZWFyc1xcKVxuZ1xuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+#TODO add dropbox to choose which country is shown (by HTML CODE)
+
+df = filter(df_emiss, Entity == \United Kingdom\)
 g &lt;- ggplot(data = df, aes(x = Year, y = co2, group = Entity) ) + 
     geom_line()
     
-g &lt;- g + labs(title = &quot;United Kingdom Emissions in metric tons of CO2 by Years&quot;)
+g &lt;- g + labs(title = \United Kingdom Emissions in metric tons of CO2 by Years\)
 g</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="happinness-trends-in-single-country" class="section level3">
-<h3>3.2 Happinness Trends in Single Country</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1RPRE8gbWF5YmUgZHJvcCB0aGlzIGxhdGVyXG5cbmNvbG5hbWVzKGRmXzIwMDUpXG5uYW1lcyhkZl8yMDA1KVsxXSA8LSBcIkVudGl0eVwiXG5cbmRmID0gZmlsdGVyKGRmXzIwMDUsIEVudGl0eSA9PSBcIlVuaXRlZCBLaW5nZG9tXCIpXG5nIDwtIGdncGxvdChkYXRhID0gZGYsIGFlcyh4ID0geWVhciwgeSA9IExpZmUuTGFkZGVyLCBncm91cCA9IEVudGl0eSkpICsgXG4gICAgZ2VvbV9saW5lKClcbiAgICBcbmcgPC0gZyArIGxhYnModGl0bGUgPSBcIkNvbnRyaWVzIEhhcGlubmVzcyBieSBZZWFyc1wiKVxuZ1xuXG5gYGAifQ== -->
-<pre class="r"><code>#TODO maybe drop this later
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+### 3.2 Happinness Trends in Single Country 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuI1RPRE8gbWF5YmUgZHJvcCB0aGlzIGxhdGVyXG5cbmNvbG5hbWVzKGRmXzIwMDUpXG5uYW1lcyhkZl8yMDA1KVsxXSA8LSBcXEVudGl0eVxcXG5cbmRmID0gZmlsdGVyKGRmXzIwMDUsIEVudGl0eSA9PSBcXFVuaXRlZCBLaW5nZG9tXFwpXG5nIDwtIGdncGxvdChkYXRhID0gZGYsIGFlcyh4ID0geWVhciwgeSA9IExpZmUuTGFkZGVyLCBncm91cCA9IEVudGl0eSkpICsgXG4gICAgZ2VvbV9saW5lKClcbiAgICBcbmcgPC0gZyArIGxhYnModGl0bGUgPSBcXENvbnRyaWVzIEhhcGlubmVzcyBieSBZZWFyc1xcKVxuZ1xuXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+#TODO maybe drop this later
 
 colnames(df_2005)
-names(df_2005)[1] &lt;- &quot;Entity&quot;
+names(df_2005)[1] &lt;- \Entity\
 
-df = filter(df_2005, Entity == &quot;United Kingdom&quot;)
+df = filter(df_2005, Entity == \United Kingdom\)
 g &lt;- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
     geom_line()
     
-g &lt;- g + labs(title = &quot;Contries Hapinness by Years&quot;)
+g &lt;- g + labs(title = \Contries Hapinness by Years\)
 g
 </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="section-1" class="section level3">
-<h3>3.3</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="year-on-year-change-in-co₂-for-top-10-countries" class="section level3">
-<h3>Year-on-year change in CO₂ for Top 10 Countries</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG50b3BfZW1pc3NfMjAxNyA8LSBkZl9lbWlzcyAlPiVcbiAgZmlsdGVyKFllYXIgPT0gMjAxNykgJT4lXG4gIGZpbHRlcihDb2RlICE9ICcnKSAlPiVcbiAgZmlsdGVyKEVudGl0eSAhPSBcIldvcmxkXCIpICU+JVxuICB0b3BfbiggMTAsIGNvMikgJT4lXG4gIGFycmFuZ2UoZGVzYyhjbzIpKSAlPiVcbiAgaGVhZCgxMClcbiAgXG50b3BfY291bnRyaWVzID0gdG9wX2VtaXNzXzIwMTckRW50aXR5XG5gYGAifQ== -->
-<pre class="r"><code>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+### 3.3
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+### Year-on-year change in CO₂ for Top 10 Countries
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuXG50b3BfZW1pc3NfMjAxNyA8LSBkZl9lbWlzcyAlPiVcbiAgZmlsdGVyKFllYXIgPT0gMjAxNykgJT4lXG4gIGZpbHRlcihDb2RlICE9ICcnKSAlPiVcbiAgZmlsdGVyKEVudGl0eSAhPSBcXFdvcmxkXFwpICU+JVxuICB0b3BfbiggMTAsIGNvMikgJT4lXG4gIGFycmFuZ2UoZGVzYyhjbzIpKSAlPiVcbiAgaGVhZCgxMClcbiAgXG50b3BfY291bnRyaWVzID0gdG9wX2VtaXNzXzIwMTckRW50aXR5XG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+
 top_emiss_2017 &lt;- df_emiss %&gt;%
   filter(Year == 2017) %&gt;%
   filter(Code != &#39;&#39;) %&gt;%
-  filter(Entity != &quot;World&quot;) %&gt;%
+  filter(Entity != \World\) %&gt;%
   top_n( 10, co2) %&gt;%
   arrange(desc(co2)) %&gt;%
   head(10)
   
 top_countries = top_emiss_2017$Entity</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5nIDwtIGdncGxvdChkYXRhID0gZGYsIGFlcyh4ID0geWVhciwgeSA9IExpZmUuTGFkZGVyLCBncm91cCA9IEVudGl0eSkpICsgXG4gICAgZ2VvbV9saW5lKClcbiAgICBcbmcgPC0gZyArIGxhYnModGl0bGUgPSBcIkNvbnRyaWVzIEhhcGlubmVzcyBieSBZZWFyc1wiKVxuZ1xuYGBgIn0= -->
-<pre class="r"><code>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuXG5nIDwtIGdncGxvdChkYXRhID0gZGYsIGFlcyh4ID0geWVhciwgeSA9IExpZmUuTGFkZGVyLCBncm91cCA9IEVudGl0eSkpICsgXG4gICAgZ2VvbV9saW5lKClcbiAgICBcbmcgPC0gZyArIGxhYnModGl0bGUgPSBcXENvbnRyaWVzIEhhcGlubmVzcyBieSBZZWFyc1xcKVxuZ1xuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+
 g &lt;- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
     geom_line()
     
-g &lt;- g + labs(title = &quot;Contries Hapinness by Years&quot;)
+g &lt;- g + labs(title = \Contries Hapinness by Years\)
 g</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZyA8LSBnZ3Bsb3QoZGF0YSA9IGRmX2VtaXNzW2RmX2VtaXNzJEVudGl0eSAlaW4lIHRvcF9jb3VudHJpZXMsIF0gXG4gICAgICAgICAgICAgICAgICAgICAgICAgICwgYWVzKHggPSBZZWFyLCB5ID0gY28yLCBncm91cCA9IEVudGl0eSkpICsgXG4gICAgZ2VvbV9saW5lKClcbmcgPC0gZyArIGxhYnModGl0bGUgPSBcIlRvcCAxMCBDb3VudHJpZXMgYnkgQ08yIEVtaXNzaW9uc1wiKVxuZ1xuXG5kZl9lbWlzc1tkZl9lbWlzcyRFbnRpdHkgJWluJSB0b3BfY291bnRyaWVzLCBdIFxuYGBgIn0= -->
-<pre class="r"><code>g &lt;- ggplot(data = df_emiss[df_emiss$Entity %in% top_countries, ] 
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZyA8LSBnZ3Bsb3QoZGF0YSA9IGRmX2VtaXNzW2RmX2VtaXNzJEVudGl0eSAlaW4lIHRvcF9jb3VudHJpZXMsIF0gXG4gICAgICAgICAgICAgICAgICAgICAgICAgICwgYWVzKHggPSBZZWFyLCB5ID0gY28yLCBncm91cCA9IEVudGl0eSkpICsgXG4gICAgZ2VvbV9saW5lKClcbmcgPC0gZyArIGxhYnModGl0bGUgPSBcXFRvcCAxMCBDb3VudHJpZXMgYnkgQ08yIEVtaXNzaW9uc1xcKVxuZ1xuXG5kZl9lbWlzc1tkZl9lbWlzcyRFbnRpdHkgJWluJSB0b3BfY291bnRyaWVzLCBdIFxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+g &lt;- ggplot(data = df_emiss[df_emiss$Entity %in% top_countries, ] 
                           , aes(x = Year, y = co2, group = Entity)) + 
     geom_line()
-g &lt;- g + labs(title = &quot;Top 10 Countries by CO2 Emissions&quot;)
+g &lt;- g + labs(title = \Top 10 Countries by CO2 Emissions\)
 g
 
 df_emiss[df_emiss$Entity %in% top_countries, ] </code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+## Modelling
+
+Our suggestions:
+1. There is correlation between the total trend and current happiness index
+2. There is correlation between current emission normalised by population to current hapinness index
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmlldyhkZl9lbWlzcylcblxuYGBgIn0= --&gt;
+
+```r
+view(df_emiss)
+</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="modelling" class="section level2">
-<h2>Modelling</h2>
-<p>Our suggestions: 1. There is correlation between the total trend and current happiness index 2. There is correlation between current emission normalised by population to current hapinness index</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gdmlldyhkZl9lbWlzcykgOiBjb3VsZCBub3QgZmluZCBmdW5jdGlvbiBcInZpZXdcIlxuIn0= -->
+<pre><code>Error in view(df_emiss) : could not find function &quot;view&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkdsb2JhbCBUcmVuZHMgb2YgQ08yIEVtaXNzaW9uIGFuZCBFZmZlY3RzIG9uIHRoZSBHbG9iYWwgSGFwaW5uZXMgSW5kZXgiDQpzdWJ0aXRsZTogIkRhdGEgQW5hbHlzaXMgUHJvamVjdCAtIERpZ2l0YWwgU2NpZW5jZXMgZm9yIEhpZ2h0ZWNoIg0KYXV0aG9yOg0KLSAiR3V5IEtyb3RoYW1tZXIsIFlhcmRlbiBLYXRhc2gsIEd1eSBEYWhhbiINCm91dHB1dDogDQogIGh0bWxfbm90ZWJvb2s6DQogICAgdG9jOiB0cnVlDQogICAgbnVtYmVyX3NlY3Rpb246IGZhbHNlDQogICAgZmlnX3dpZHRoOiAxMA0KICAgIGZpZ19oZWlnaHQ6IDEwDQogICAgZmlnX2NhcHRpb246IHRydWUNCiAgICBkZl9wcmludDoga2FibGUNCiAgICBmb250c2l6ZTogMTFwdA0KICAgIHRoZW1lOiB1bml0ZWQNCi0tLQ0KDQojIEludHJvZHVjdGlvbg0KDQojIyBCYWNrZ3JvdW5kDQoNClRoaXMgcHJvamVjdCB3YXMgZG9uZSBhcyBhIHBhcnQgb2YgIkRhdGEgQW5hbHlzaXMiIGNvdXJzZSBhcyBwYXJ0IG9mIG91ciB0ZWFtcyANCnN0dWRpZXMgaW4gRGlnaXRhbCBTY2llbmNlcyBmb3IgSGlnaC1UZWNoIGluIHRoZSBVbml2ZXJzaXR5IG9mIFRlbC1Bdml2LiANCk91ciB0ZWFtIGhhcyBncmVhdCBpbnRlcmVzdCBpbiB1c2luZyBvdXIgc3R1ZGllcyBmb3IgZXhwbG9yaW5nIGFuZCBpbiB0aGUgZnV0dXJlIG1heWJlIGV2ZW4NCmRldmVsb3BpbmcgdG9vbHMgZm9yIGltcHJvdmluZyB0aGUgd2F5IHdlIHRyZWF0IG91ciBwbGFuZXQuIFRoZXJlZm9yZSBvdXIgc3ViamVjdCBpcw0KQ08yIGVtaXNzaW9ucyBpbiBjb25nZXN0aW9uIHdpdGggdGhlIHdvcmxkIGhhcHBpbm5lcyBpbmRleC4gDQoNCiMjIEdvYWxzDQoNCjEuIEZpbmQgdGhlIHRyZW5kcyBvZiBDTzIgZW1pc3Npb25zIGluIGRpZmZlcmVudCBjb3VudHJpZXMgYWxvbmcgdGhlIHllYXJzIDE3MDAtMjAxNy4NCjIuIEZpbmQgd2hhdCBjb3VudHJpZXMgaGFkIGdyZWF0ZXIgZ3Jvd3RoIGluIGVtaXNzaW9ucyBhbmQgaW4gd2hpY2ggeWVhcnMuDQozLiBDb21wYXJlIHRoZSBsZWFkaW5nIGNvdW50cmllcyB3aXRoIHRoZSBoaWdoZXN0IHJlY2VudCB0cmVuZHMgb2YgZ3Jvd3RoIG9yIGRlY3JlYXNlZCBlbWlzc2lvbg0KaW4gY29ycmVsYXRpb24gd2l0aCB0aGUgY3VycmVudCBhbmQgcHJldmlvdXMgVU4gaGFwcGluZXMgSW5kZXguIA0KDQojIFBhcnQgMTogSW1wb3J0aW5nIERhdGEgYW5kIFBhY2thZ2VzDQoNCiMjIFBhY2thZ2VzIEltcG9ydA0KDQpgYGB7cn0NCiMgaW5zdGFsbCBhbmQgaW1wb3J0IHBhY2thZ2VzDQppbnN0YWxsLnBhY2thZ2VzKCJnZ2NoaWNrbGV0IiwgcmVwb3MgPSAiaHR0cHM6Ly9jaW5jLnJ1ZC5pcyIpICMgZm9yIHJvdW5kZWQgY29ybmVycyANCmluc3RhbGwucGFja2FnZXMoImNvd3Bsb3QiKSAjcGF0Y2ggcGxvdHMNCmluc3RhbGwucGFja2FnZXMoImhyYnJ0aGVtZXMiLCByZXBvcyA9IGMoImh0dHBzOi8vY2luYy5ydWQuaXMiLCAiaHR0cHM6Ly9jbG91ZC5yLXByb2plY3Qub3JnLyIpKSAjYmVhdXRpZnVsIHRoZW1lDQppbnN0YWxsLnBhY2thZ2VzKCJ3YWZmbGUiLCByZXBvcyA9ICJodHRwczovL2NpbmMucnVkLmlzIikgI3dhZmZsZSBwbG90DQppbnN0YWxsLnBhY2thZ2VzKCJnZ2FsdCIpICNkdW1iZWxsIHBsb3QNCmluc3RhbGwucGFja2FnZXMoIkdHYWxseSIpICMgY29ycmVsYXRpb24gbWF0cml4DQppbnN0YWxsLnBhY2thZ2VzDQppbnN0YWxsLnBhY2thZ2VzKCJIbWlzYyIpIyB0byBpbnN0YWxsIHRoZSByZWxhdGl2ZSB3ZWlnaHQgcGFja2FnZQ0KcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoIm1hcnRpbmN0Yy9yd2EiKSAjIHJlbGF0aXZlIHdlaWdodCBhbmFseXMNCmBgYA0KT1JJIEJPUkkNCg0KDQpgYGB7cn0NCiMgaW1wb3J0IGxpYnJhcnkNCmxpYnJhcnkodGlkeXZlcnNlKSANCmxpYnJhcnkoZ2djaGlja2xldCkNCmxpYnJhcnkoY293cGxvdCkNCmxpYnJhcnkoaHJicnRoZW1lcykNCmxpYnJhcnkoZ2dhbHQpDQpsaWJyYXJ5KEdHYWxseSkNCmxpYnJhcnkocndhKQ0KbGlicmFyeShyZWFkcikNCmxpYnJhcnkoSG1pc2MpDQpsaWJyYXJ5KHRpYmJsZSkNCmBgYA0KDQojIyBEYXRhIGltcG9ydA0KDQpgYGB7cn0NCmhhcHB5X2luZGV4XzIwMDUgPC0gIkRhdGEvd29ybGQtaGFwcGluZXNzLXJlcG9ydC0yMDA1LTIwMjAuY3N2IiANCmhhcHB5X2luZGV4XzIwMjEgPC0gIkRhdGEvd29ybGQtaGFwcGluZXNzLXJlcG9ydC0yMDIxLmNzdiINCmVtaXNzaW9uIDwtICJEYXRhL2NvMl9lbWlzc2lvbi5jc3YiICMgVE9ETyBUaGUgaGVhZGxpbmUgaXNuJ3QgbG9hZGVkIHdlbGwgZm9yIGNvbHVtbiA0DQpwb3B1bGF0aW9uIDwtIkRhdGEvcG9wdWxhdGlvbi5jc3YiDQoNCmRmXzIwMDUgPC0gcmVhZC5jc3YoaGFwcHlfaW5kZXhfMjAwNSkNCmRmXzIwMjEgPC0gcmVhZC5jc3YoaGFwcHlfaW5kZXhfMjAyMSkNCmRmX2VtaXNzIDwtIHJlYWQuY3N2KGVtaXNzaW9uLCBjb2wubmFtZXMgPSBjKCJFbnRpdHkiLCAiQ29kZSIgLCAiWWVhciIsICJjbzIiKSkNCmRmX3BvcCA8LSByZWFkLmNzdihwb3B1bGF0aW9uKQ0KDQphc190aWJibGUoZGZfMjAwNSkNCmFzX3RpYmJsZShkZl8yMDIxKQ0KYXNfdGliYmxlKGRmX2VtaXNzKQ0KYXNfdGliYmxlKGRmX3BvcCkNCmBgYA0KDQpBcyBzZWVuIGluIHRoZSB0YWJsZSBhYm92ZSwgdGhlIG1haW4gZGF0YXNldCByZWdhcmRpbmcgZW1pc3Npb25zIGhhcyBvbmx5IDQgZmVhdHVyZXMsIG9mIHdoaWNoIDIgYXJlIGlkZW50aWNhbCAoY291bnRyaWVzIGFuZCBjb3VudHJ5IGNvZGUpLiANCg0KDQpgYGB7cn0NCnN1bW1hcnkoZGZfZW1pc3MpDQpgYGANCg0KDQojIFBhcnQgMjogVGlkeWluZyB0aGUgRGF0YQ0KDQojIyANCg0KYGBge3J9DQpmaWx0ZXIoZGZfZW1pc3MsIFllYXIgPCAxOTUwLCBwcmVzZXJ2ZSA9IEZBTFNFKSAjIFRPRE8gZmlsdGVyIGJ5IHllYXIgbGFyZ2VyIHRoYW4gMTk1MCwgZml4IGNvZGUNCg0KZGZfZW1pc3MgPC1kZl9lbWlzcyAlPiUgIyBhZGQgZGlmIGNvbHVtbg0KICBncm91cF9ieShFbnRpdHkpICU+JQ0KICBtdXRhdGUoRGlmZiA9IGNvMiAtIGxhZyhjbzIsIGRlZmF1bHQgPSBjbzJbMV0pKQ0KDQpkZl9wb3BfdG9fbWVyZ2UgPC0gZGZfcG9wICU+JQ0KICBmaWx0ZXIoWWVhciA+IDE5NDkpDQoNCmRmX2VtaXNzX3RvX21lcmdlIDwtIGRmX2VtaXNzICU+JQ0KICBmaWx0ZXIoWWVhciA+IDE5NDkpDQoNCmRmX2VtaXNzX3RvX21lcmdlJEVudGl0eSA8LSBhcy5jaGFyYWN0ZXIoZGZfZW1pc3NfdG9fbWVyZ2UkRW50aXR5KQ0KZGZfcG9wX3RvX21lcmdlJEVudGl0eSA8LSBhcy5jaGFyYWN0ZXIoZGZfcG9wX3RvX21lcmdlJEVudGl0eSkNCg0KbGlicmFyeShkcGx5cikNCmRmX2FsbCA8LSBmdWxsX2pvaW4oZGZfZW1pc3NfdG9fbWVyZ2UsIGRmX3BvcF90b19tZXJnZSwgYnkgPSBjKCdFbnRpdHknLCdZZWFyJykpDQoNCmRyb3BzIDwtIGMoIkNvZGUueSIpDQpkZl9hbGwgPC1kZl9hbGxbLCAhKG5hbWVzKGRmX2FsbCkgJWluJSBkcm9wcyldDQoNCm5hbWVzKGRmX2FsbClbbmFtZXMoZGZfYWxsKSA9PSAiQ29kZS54Il0gPC0gIkNvZGUiDQoNCnZpZXcoZGZfYWxsKQ0KDQojVE9ETyBhZGQgcG9wdWxhdGlvbiBieSB5ZWFycyB0byBEZl9lbWlzcw0KDQpkZl9lbWlzc19hYm92ZV8xOTUwIDwtIGRmX2VtaXNzICU+JSBmaWx0ZXIoWWVhciA+PSAxOTUwKSAjIGZpbHRlcmVkIGJ5IHllYXJzIGxhcmdlciB0aGFuIDE5NTANCnZpZXcoZGZfZW1pc3NfYWJvdmVfMTk1MCkNCg0KZGZfZW1pc3MgPC1kZl9lbWlzcyAlPiUgIyBhZGQgZGlmIGNvbHVtbg0KICBncm91cF9ieShFbnRpdHkpICU+JQ0KICBtdXRhdGUoRGlmZiA9IGNvMiAtIGxhZyhjbzIsIGRlZmF1bHQgPSBjbzJbMV0pKQ0KdmlldyhkZl9lbWlzcykNCg0KZGZfc2tpcHBpbmdfYnlfMTAgPC0gZGZfZW1pc3NfYWJvdmVfMTk1MCAlPiUgc2xpY2Uod2hpY2goWWVhciAlJSAxMCA9PSAwIHwgWWVhciA9PSAyMDE3KSkNCnZpZXcoZGZfc2tpcHBpbmdfYnlfMTApDQoNCmRmX2VtaXNzIDwtIGRmX3NraXBwaW5nX2J5XzEwICU+JSAjIGFkZCAxMCB5ZWFycyBkaWYgY29sdW1uDQogIGdyb3VwX2J5KEVudGl0eSkgJT4lDQogIG11dGF0ZShUZW5feWVhcnNfRGlmZiA9IGNvMiAtIGxhZyhjbzIsIGRlZmF1bHQgPSBjbzJbMV0pKQ0KdmlldyhkZl9lbWlzcykNCg0KZGZfZW1pc3MgPC0gZGZfZW1pc3MgJT4lICMgVE9ETyBhZGQgMjAgeWVhcnMgZGlmIGNvbHVtbiAtIG5vdCBkb25lLg0KICBncm91cF9ieShFbnRpdHkpICU+JQ0KICBtdXRhdGUoVGV3bnR5X3llYXJzX0RpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzJdKSkNCnZpZXcoZGZfZW1pc3MpDQoNCiNUT0RPIHFlZXZjb2x1bW4gb2Ygbm9ybWFsaXNlZCBlbWlzc2lvbjogY28yL3BvcHVsYXRpb24gYnkgeWVhcg0KDQoNCmBgYA0KDQojIFBhcnQgMzogUHJvY2Nlc2luZyBvZiB0aGUgRGF0YQ0KDQojIyBWaXN1YWxpc2F0aW9uIA0KDQojIyMgMy4xIFNpbmdsZSBDb3VudHJ5IEVtaXNzaW9uIEdyYXBoDQoNCmBgYHtyfQ0KI1RPRE8gYWRkIGRyb3Bib3ggdG8gY2hvb3NlIHdoaWNoIGNvdW50cnkgaXMgc2hvd24gKGJ5IEhUTUwgQ09ERSkNCg0KZGYgPSBmaWx0ZXIoZGZfZW1pc3MsIEVudGl0eSA9PSAiVW5pdGVkIEtpbmdkb20iKQ0KZyA8LSBnZ3Bsb3QoZGF0YSA9IGRmLCBhZXMoeCA9IFllYXIsIHkgPSBjbzIsIGdyb3VwID0gRW50aXR5KSApICsgDQogICAgZ2VvbV9saW5lKCkNCiAgICANCmcgPC0gZyArIGxhYnModGl0bGUgPSAiVW5pdGVkIEtpbmdkb20gRW1pc3Npb25zIGluIG1ldHJpYyB0b25zIG9mIENPMiBieSBZZWFycyIpDQpnDQpgYGANCg0KIyMjIDMuMiBIYXBwaW5uZXNzIFRyZW5kcyBpbiBTaW5nbGUgQ291bnRyeSANCg0KYGBge3J9DQojVE9ETyBtYXliZSBkcm9wIHRoaXMgbGF0ZXINCg0KY29sbmFtZXMoZGZfMjAwNSkNCm5hbWVzKGRmXzIwMDUpWzFdIDwtICJFbnRpdHkiDQoNCmRmID0gZmlsdGVyKGRmXzIwMDUsIEVudGl0eSA9PSAiVW5pdGVkIEtpbmdkb20iKQ0KZyA8LSBnZ3Bsb3QoZGF0YSA9IGRmLCBhZXMoeCA9IHllYXIsIHkgPSBMaWZlLkxhZGRlciwgZ3JvdXAgPSBFbnRpdHkpKSArIA0KICAgIGdlb21fbGluZSgpDQogICAgDQpnIDwtIGcgKyBsYWJzKHRpdGxlID0gIkNvbnRyaWVzIEhhcGlubmVzcyBieSBZZWFycyIpDQpnDQoNCmBgYA0KDQojIyMgMy4zDQoNCmBgYHtyfQ0KDQpgYGANCg0KIyMjIFllYXItb24teWVhciBjaGFuZ2UgaW4gQ0/igoIgZm9yIFRvcCAxMCBDb3VudHJpZXMNCg0KYGBge3J9DQoNCnRvcF9lbWlzc18yMDE3IDwtIGRmX2VtaXNzICU+JQ0KICBmaWx0ZXIoWWVhciA9PSAyMDE3KSAlPiUNCiAgZmlsdGVyKENvZGUgIT0gJycpICU+JQ0KICBmaWx0ZXIoRW50aXR5ICE9ICJXb3JsZCIpICU+JQ0KICB0b3BfbiggMTAsIGNvMikgJT4lDQogIGFycmFuZ2UoZGVzYyhjbzIpKSAlPiUNCiAgaGVhZCgxMCkNCiAgDQp0b3BfY291bnRyaWVzID0gdG9wX2VtaXNzXzIwMTckRW50aXR5DQpgYGANCg0KYGBge3J9DQoNCmcgPC0gZ2dwbG90KGRhdGEgPSBkZiwgYWVzKHggPSB5ZWFyLCB5ID0gTGlmZS5MYWRkZXIsIGdyb3VwID0gRW50aXR5KSkgKyANCiAgICBnZW9tX2xpbmUoKQ0KICAgIA0KZyA8LSBnICsgbGFicyh0aXRsZSA9ICJDb250cmllcyBIYXBpbm5lc3MgYnkgWWVhcnMiKQ0KZw0KYGBgDQoNCg0KYGBge3J9DQpnIDwtIGdncGxvdChkYXRhID0gZGZfZW1pc3NbZGZfZW1pc3MkRW50aXR5ICVpbiUgdG9wX2NvdW50cmllcywgXSANCiAgICAgICAgICAgICAgICAgICAgICAgICAgLCBhZXMoeCA9IFllYXIsIHkgPSBjbzIsIGdyb3VwID0gRW50aXR5KSkgKyANCiAgICBnZW9tX2xpbmUoKQ0KZyA8LSBnICsgbGFicyh0aXRsZSA9ICJUb3AgMTAgQ291bnRyaWVzIGJ5IENPMiBFbWlzc2lvbnMiKQ0KZw0KDQpkZl9lbWlzc1tkZl9lbWlzcyRFbnRpdHkgJWluJSB0b3BfY291bnRyaWVzLCBdIA0KYGBgDQoNCg0KIyMgTW9kZWxsaW5nDQoNCk91ciBzdWdnZXN0aW9uczoNCjEuIFRoZXJlIGlzIGNvcnJlbGF0aW9uIGJldHdlZW4gdGhlIHRvdGFsIHRyZW5kIGFuZCBjdXJyZW50IGhhcHBpbmVzcyBpbmRleA0KMi4gVGhlcmUgaXMgY29ycmVsYXRpb24gYmV0d2VlbiBjdXJyZW50IGVtaXNzaW9uIG5vcm1hbGlzZWQgYnkgcG9wdWxhdGlvbiB0byBjdXJyZW50IGhhcGlubmVzcyBpbmRleA0KDQpgYGB7cn0NCg0KDQpgYGANCg0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkdsb2JhbCBUcmVuZHMgb2YgQ08yIEVtaXNzaW9uIGFuZCBFZmZlY3RzIG9uIHRoZSBHbG9iYWwgSGFwaW5uZXMgSW5kZXgiDQpzdWJ0aXRsZTogIkRhdGEgQW5hbHlzaXMgUHJvamVjdCAtIERpZ2l0YWwgU2NpZW5jZXMgZm9yIEhpZ2h0ZWNoIg0KYXV0aG9yOg0KLSAiR3V5IEtyb3RoYW1tZXIsIFlhcmRlbiBLYXRhc2gsIEd1eSBEYWhhbiINCm91dHB1dDogDQogIGh0bWxfbm90ZWJvb2s6DQogICAgdG9jOiB0cnVlDQogICAgbnVtYmVyX3NlY3Rpb246IGZhbHNlDQogICAgZmlnX3dpZHRoOiAxMA0KICAgIGZpZ19oZWlnaHQ6IDEwDQogICAgZmlnX2NhcHRpb246IHRydWUNCiAgICBkZl9wcmludDoga2FibGUNCiAgICBmb250c2l6ZTogMTFwdA0KICAgIHRoZW1lOiB1bml0ZWQNCi0tLQ0KDQojIEludHJvZHVjdGlvbg0KDQojIyBCYWNrZ3JvdW5kDQoNClRoaXMgcHJvamVjdCB3YXMgZG9uZSBhcyBhIHBhcnQgb2YgIkRhdGEgQW5hbHlzaXMiIGNvdXJzZSBhcyBwYXJ0IG9mIG91ciB0ZWFtcyANCnN0dWRpZXMgaW4gRGlnaXRhbCBTY2llbmNlcyBmb3IgSGlnaC1UZWNoIGluIHRoZSBVbml2ZXJzaXR5IG9mIFRlbC1Bdml2LiANCk91ciB0ZWFtIGhhcyBncmVhdCBpbnRlcmVzdCBpbiB1c2luZyBvdXIgc3R1ZGllcyBmb3IgZXhwbG9yaW5nIGFuZCBpbiB0aGUgZnV0dXJlIG1heWJlIGV2ZW4NCmRldmVsb3BpbmcgdG9vbHMgZm9yIGltcHJvdmluZyB0aGUgd2F5IHdlIHRyZWF0IG91ciBwbGFuZXQuIFRoZXJlZm9yZSBvdXIgc3ViamVjdCBpcw0KQ08yIGVtaXNzaW9ucyBpbiBjb25nZXN0aW9uIHdpdGggdGhlIHdvcmxkIGhhcHBpbm5lcyBpbmRleC4gDQoNCiMjIEdvYWxzDQoNCjEuIEZpbmQgdGhlIHRyZW5kcyBvZiBDTzIgZW1pc3Npb25zIGluIGRpZmZlcmVudCBjb3VudHJpZXMgYWxvbmcgdGhlIHllYXJzIDE3MDAtMjAxNy4NCjIuIEZpbmQgd2hhdCBjb3VudHJpZXMgaGFkIGdyZWF0ZXIgZ3Jvd3RoIGluIGVtaXNzaW9ucyBhbmQgaW4gd2hpY2ggeWVhcnMuDQozLiBDb21wYXJlIHRoZSBsZWFkaW5nIGNvdW50cmllcyB3aXRoIHRoZSBoaWdoZXN0IHJlY2VudCB0cmVuZHMgb2YgZ3Jvd3RoIG9yIGRlY3JlYXNlZCBlbWlzc2lvbg0KaW4gY29ycmVsYXRpb24gd2l0aCB0aGUgY3VycmVudCBhbmQgcHJldmlvdXMgVU4gaGFwcGluZXMgSW5kZXguIA0KDQojIFBhcnQgMTogSW1wb3J0aW5nIERhdGEgYW5kIFBhY2thZ2VzDQoNCiMjIFBhY2thZ2VzIEltcG9ydA0KDQpgYGB7cn0NCiMgaW5zdGFsbCBhbmQgaW1wb3J0IHBhY2thZ2VzDQppbnN0YWxsLnBhY2thZ2VzKCJnZ2NoaWNrbGV0IiwgcmVwb3MgPSAiaHR0cHM6Ly9jaW5jLnJ1ZC5pcyIpICMgZm9yIHJvdW5kZWQgY29ybmVycyANCmluc3RhbGwucGFja2FnZXMoImNvd3Bsb3QiKSAjcGF0Y2ggcGxvdHMNCmluc3RhbGwucGFja2FnZXMoImhyYnJ0aGVtZXMiLCByZXBvcyA9IGMoImh0dHBzOi8vY2luYy5ydWQuaXMiLCAiaHR0cHM6Ly9jbG91ZC5yLXByb2plY3Qub3JnLyIpKSAjYmVhdXRpZnVsIHRoZW1lDQppbnN0YWxsLnBhY2thZ2VzKCJ3YWZmbGUiLCByZXBvcyA9ICJodHRwczovL2NpbmMucnVkLmlzIikgI3dhZmZsZSBwbG90DQppbnN0YWxsLnBhY2thZ2VzKCJnZ2FsdCIpICNkdW1iZWxsIHBsb3QNCmluc3RhbGwucGFja2FnZXMoIkdHYWxseSIpICMgY29ycmVsYXRpb24gbWF0cml4DQppbnN0YWxsLnBhY2thZ2VzDQppbnN0YWxsLnBhY2thZ2VzKCJIbWlzYyIpIyB0byBpbnN0YWxsIHRoZSByZWxhdGl2ZSB3ZWlnaHQgcGFja2FnZQ0KcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoIm1hcnRpbmN0Yy9yd2EiKSAjIHJlbGF0aXZlIHdlaWdodCBhbmFseXMNCmBgYA0KT1JJIEJPUkkNCg0KDQpgYGB7cn0NCiMgaW1wb3J0IGxpYnJhcnkNCmxpYnJhcnkodGlkeXZlcnNlKSANCmxpYnJhcnkoZ2djaGlja2xldCkNCmxpYnJhcnkoY293cGxvdCkNCmxpYnJhcnkoaHJicnRoZW1lcykNCmxpYnJhcnkoZ2dhbHQpDQpsaWJyYXJ5KEdHYWxseSkNCmxpYnJhcnkocndhKQ0KbGlicmFyeShyZWFkcikNCmxpYnJhcnkoSG1pc2MpDQpsaWJyYXJ5KHRpYmJsZSkNCmBgYA0KDQojIyBEYXRhIGltcG9ydA0KDQpgYGB7cn0NCmhhcHB5X2luZGV4XzIwMDUgPC0gIkRhdGEvd29ybGQtaGFwcGluZXNzLXJlcG9ydC0yMDA1LTIwMjAuY3N2IiANCmhhcHB5X2luZGV4XzIwMjEgPC0gIkRhdGEvd29ybGQtaGFwcGluZXNzLXJlcG9ydC0yMDIxLmNzdiINCmVtaXNzaW9uIDwtICJEYXRhL2NvMl9lbWlzc2lvbi5jc3YiICMgVE9ETyBUaGUgaGVhZGxpbmUgaXNuJ3QgbG9hZGVkIHdlbGwgZm9yIGNvbHVtbiA0DQpwb3B1bGF0aW9uIDwtIkRhdGEvcG9wdWxhdGlvbi5jc3YiDQoNCmRmXzIwMDUgPC0gcmVhZC5jc3YoaGFwcHlfaW5kZXhfMjAwNSkNCmRmXzIwMjEgPC0gcmVhZC5jc3YoaGFwcHlfaW5kZXhfMjAyMSkNCmRmX2VtaXNzIDwtIHJlYWQuY3N2KGVtaXNzaW9uLCBjb2wubmFtZXMgPSBjKCJFbnRpdHkiLCAiQ29kZSIgLCAiWWVhciIsICJjbzIiKSkNCmRmX3BvcCA8LSByZWFkLmNzdihwb3B1bGF0aW9uKQ0KDQphc190aWJibGUoZGZfMjAwNSkNCmFzX3RpYmJsZShkZl8yMDIxKQ0KYXNfdGliYmxlKGRmX2VtaXNzKQ0KYXNfdGliYmxlKGRmX3BvcCkNCmBgYA0KDQpBcyBzZWVuIGluIHRoZSB0YWJsZSBhYm92ZSwgdGhlIG1haW4gZGF0YXNldCByZWdhcmRpbmcgZW1pc3Npb25zIGhhcyBvbmx5IDQgZmVhdHVyZXMsIG9mIHdoaWNoIDIgYXJlIGlkZW50aWNhbCAoY291bnRyaWVzIGFuZCBjb3VudHJ5IGNvZGUpLiANCg0KDQpgYGB7cn0NCnN1bW1hcnkoZGZfZW1pc3MpDQpgYGANCg0KDQojIFBhcnQgMjogVGlkeWluZyB0aGUgRGF0YQ0KDQojIyANCg0KYGBge3J9DQpmaWx0ZXIoZGZfZW1pc3MsIFllYXIgPCAxOTUwLCBwcmVzZXJ2ZSA9IEZBTFNFKSAjIFRPRE8gZmlsdGVyIGJ5IHllYXIgbGFyZ2VyIHRoYW4gMTk1MCwgZml4IGNvZGUNCg0KZGZfZW1pc3MgPC1kZl9lbWlzcyAlPiUgIyBhZGQgZGlmIGNvbHVtbg0KICBncm91cF9ieShFbnRpdHkpICU+JQ0KICBtdXRhdGUoRGlmZiA9IGNvMiAtIGxhZyhjbzIsIGRlZmF1bHQgPSBjbzJbMV0pKQ0KDQpkZl9wb3BfdG9fbWVyZ2UgPC0gZGZfcG9wICU+JQ0KICBmaWx0ZXIoWWVhciA+IDE5NDkpDQoNCmRmX2VtaXNzX3RvX21lcmdlIDwtIGRmX2VtaXNzICU+JQ0KICBmaWx0ZXIoWWVhciA+IDE5NDkpDQoNCmRmX2VtaXNzX3RvX21lcmdlJEVudGl0eSA8LSBhcy5jaGFyYWN0ZXIoZGZfZW1pc3NfdG9fbWVyZ2UkRW50aXR5KQ0KZGZfcG9wX3RvX21lcmdlJEVudGl0eSA8LSBhcy5jaGFyYWN0ZXIoZGZfcG9wX3RvX21lcmdlJEVudGl0eSkNCg0KbGlicmFyeShkcGx5cikNCmRmX2FsbCA8LSBmdWxsX2pvaW4oZGZfZW1pc3NfdG9fbWVyZ2UsIGRmX3BvcF90b19tZXJnZSwgYnkgPSBjKCdFbnRpdHknLCdZZWFyJykpDQoNCmRyb3BzIDwtIGMoIkNvZGUueSIpDQpkZl9hbGwgPC1kZl9hbGxbLCAhKG5hbWVzKGRmX2FsbCkgJWluJSBkcm9wcyldDQoNCm5hbWVzKGRmX2FsbClbbmFtZXMoZGZfYWxsKSA9PSAiQ29kZS54Il0gPC0gIkNvZGUiDQoNCnZpZXcoZGZfYWxsKQ0KDQojVE9ETyBhZGQgcG9wdWxhdGlvbiBieSB5ZWFycyB0byBEZl9lbWlzcw0KDQpkZl9lbWlzc19hYm92ZV8xOTUwIDwtIGRmX2VtaXNzICU+JSBmaWx0ZXIoWWVhciA+PSAxOTUwKSAjIGZpbHRlcmVkIGJ5IHllYXJzIGxhcmdlciB0aGFuIDE5NTANCnZpZXcoZGZfZW1pc3NfYWJvdmVfMTk1MCkNCg0KZGZfZW1pc3MgPC1kZl9lbWlzcyAlPiUgIyBhZGQgZGlmIGNvbHVtbg0KICBncm91cF9ieShFbnRpdHkpICU+JQ0KICBtdXRhdGUoRGlmZiA9IGNvMiAtIGxhZyhjbzIsIGRlZmF1bHQgPSBjbzJbMV0pKQ0KdmlldyhkZl9lbWlzcykNCg0KZGZfc2tpcHBpbmdfYnlfMTAgPC0gZGZfZW1pc3NfYWJvdmVfMTk1MCAlPiUgc2xpY2Uod2hpY2goWWVhciAlJSAxMCA9PSAwIHwgWWVhciA9PSAyMDE3KSkNCnZpZXcoZGZfc2tpcHBpbmdfYnlfMTApDQoNCmRmX2VtaXNzIDwtIGRmX3NraXBwaW5nX2J5XzEwICU+JSAjIGFkZCAxMCB5ZWFycyBkaWYgY29sdW1uDQogIGdyb3VwX2J5KEVudGl0eSkgJT4lDQogIG11dGF0ZShUZW5feWVhcnNfRGlmZiA9IGNvMiAtIGxhZyhjbzIsIGRlZmF1bHQgPSBjbzJbMV0pKQ0KdmlldyhkZl9lbWlzcykNCg0KZGZfZW1pc3MgPC0gZGZfZW1pc3MgJT4lICMgVE9ETyBhZGQgMjAgeWVhcnMgZGlmIGNvbHVtbiAtIG5vdCBkb25lLg0KICBncm91cF9ieShFbnRpdHkpICU+JQ0KICBtdXRhdGUoVGV3bnR5X3llYXJzX0RpZmYgPSBjbzIgLSBsYWcoY28yLCBkZWZhdWx0ID0gY28yWzJdKSkNCnZpZXcoZGZfZW1pc3MpDQoNCiNUT0RPIHFlZXZjb2x1bW4gb2Ygbm9ybWFsaXNlZCBlbWlzc2lvbjogY28yL3BvcHVsYXRpb24gYnkgeWVhcg0KDQoNCmBgYA0KDQojIFBhcnQgMzogUHJvY2Nlc2luZyBvZiB0aGUgRGF0YQ0KDQojIyBWaXN1YWxpc2F0aW9uIA0KDQojIyMgMy4xIFNpbmdsZSBDb3VudHJ5IEVtaXNzaW9uIEdyYXBoDQoNCmBgYHtyfQ0KI1RPRE8gYWRkIGRyb3Bib3ggdG8gY2hvb3NlIHdoaWNoIGNvdW50cnkgaXMgc2hvd24gKGJ5IEhUTUwgQ09ERSkNCg0KZGYgPSBmaWx0ZXIoZGZfZW1pc3MsIEVudGl0eSA9PSAiVW5pdGVkIEtpbmdkb20iKQ0KZyA8LSBnZ3Bsb3QoZGF0YSA9IGRmLCBhZXMoeCA9IFllYXIsIHkgPSBjbzIsIGdyb3VwID0gRW50aXR5KSApICsgDQogICAgZ2VvbV9saW5lKCkNCiAgICANCmcgPC0gZyArIGxhYnModGl0bGUgPSAiVW5pdGVkIEtpbmdkb20gRW1pc3Npb25zIGluIG1ldHJpYyB0b25zIG9mIENPMiBieSBZZWFycyIpDQpnDQpgYGANCg0KIyMjIDMuMiBIYXBwaW5uZXNzIFRyZW5kcyBpbiBTaW5nbGUgQ291bnRyeSANCg0KYGBge3J9DQojVE9ETyBtYXliZSBkcm9wIHRoaXMgbGF0ZXINCg0KY29sbmFtZXMoZGZfMjAwNSkNCm5hbWVzKGRmXzIwMDUpWzFdIDwtICJFbnRpdHkiDQoNCmRmID0gZmlsdGVyKGRmXzIwMDUsIEVudGl0eSA9PSAiVW5pdGVkIEtpbmdkb20iKQ0KZyA8LSBnZ3Bsb3QoZGF0YSA9IGRmLCBhZXMoeCA9IHllYXIsIHkgPSBMaWZlLkxhZGRlciwgZ3JvdXAgPSBFbnRpdHkpKSArIA0KICAgIGdlb21fbGluZSgpDQogICAgDQpnIDwtIGcgKyBsYWJzKHRpdGxlID0gIkNvbnRyaWVzIEhhcGlubmVzcyBieSBZZWFycyIpDQpnDQoNCmBgYA0KDQojIyMgMy4zDQoNCmBgYHtyfQ0KDQpgYGANCg0KIyMjIFllYXItb24teWVhciBjaGFuZ2UgaW4gQ0/igoIgZm9yIFRvcCAxMCBDb3VudHJpZXMNCg0KYGBge3J9DQoNCnRvcF9lbWlzc18yMDE3IDwtIGRmX2VtaXNzICU+JQ0KICBmaWx0ZXIoWWVhciA9PSAyMDE3KSAlPiUNCiAgZmlsdGVyKENvZGUgIT0gJycpICU+JQ0KICBmaWx0ZXIoRW50aXR5ICE9ICJXb3JsZCIpICU+JQ0KICB0b3BfbiggMTAsIGNvMikgJT4lDQogIGFycmFuZ2UoZGVzYyhjbzIpKSAlPiUNCiAgaGVhZCgxMCkNCiAgDQp0b3BfY291bnRyaWVzID0gdG9wX2VtaXNzXzIwMTckRW50aXR5DQpgYGANCg0KYGBge3J9DQoNCmcgPC0gZ2dwbG90KGRhdGEgPSBkZiwgYWVzKHggPSB5ZWFyLCB5ID0gTGlmZS5MYWRkZXIsIGdyb3VwID0gRW50aXR5KSkgKyANCiAgICBnZW9tX2xpbmUoKQ0KICAgIA0KZyA8LSBnICsgbGFicyh0aXRsZSA9ICJDb250cmllcyBIYXBpbm5lc3MgYnkgWWVhcnMiKQ0KZw0KYGBgDQoNCg0KYGBge3J9DQpnIDwtIGdncGxvdChkYXRhID0gZGZfZW1pc3NbZGZfZW1pc3MkRW50aXR5ICVpbiUgdG9wX2NvdW50cmllcywgXSANCiAgICAgICAgICAgICAgICAgICAgICAgICAgLCBhZXMoeCA9IFllYXIsIHkgPSBjbzIsIGdyb3VwID0gRW50aXR5KSkgKyANCiAgICBnZW9tX2xpbmUoKQ0KZyA8LSBnICsgbGFicyh0aXRsZSA9ICJUb3AgMTAgQ291bnRyaWVzIGJ5IENPMiBFbWlzc2lvbnMiKQ0KZw0KDQpkZl9lbWlzc1tkZl9lbWlzcyRFbnRpdHkgJWluJSB0b3BfY291bnRyaWVzLCBdIA0KYGBgDQoNCg0KIyMgTW9kZWxsaW5nDQoNCk91ciBzdWdnZXN0aW9uczoNCjEuIFRoZXJlIGlzIGNvcnJlbGF0aW9uIGJldHdlZW4gdGhlIHRvdGFsIHRyZW5kIGFuZCBjdXJyZW50IGhhcHBpbmVzcyBpbmRleA0KMi4gVGhlcmUgaXMgY29ycmVsYXRpb24gYmV0d2VlbiBjdXJyZW50IGVtaXNzaW9uIG5vcm1hbGlzZWQgYnkgcG9wdWxhdGlvbiB0byBjdXJyZW50IGhhcGlubmVzcyBpbmRleA0KDQpgYGB7cn0NCg0KdmlldyhkZl9lbWlzcykNCmBgYA0KDQoNCg==</div>
 
 
 

@@ -234,7 +234,7 @@ Our suggestions:
 
 ```{r}
 
-
+view(df_emiss)
 ```
 
 
