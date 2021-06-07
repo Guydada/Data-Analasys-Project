@@ -68,16 +68,17 @@ library(tibble)
 happy_index_2005 <- "Data/world-happiness-report-2005-2020.csv" 
 happy_index_2021 <- "Data/world-happiness-report-2021.csv"
 emission <- "Data/co2_emission.csv" # TODO The headline isn't loaded well for column 4
+population <-"Data/population.csv"
 
 df_2005 <- read.csv(happy_index_2005)
 df_2021 <- read.csv(happy_index_2021)
 df_emiss <- read.csv(emission, col.names = c("Entity", "Code" , "Year", "co2"))
+df_pop <- read.csv(population)
 
 as_tibble(df_2005)
 as_tibble(df_2021)
 as_tibble(df_emiss)
-#TODO add population df, select columns
-
+as_tibble(df_pop)
 ```
 
 As seen in the table above, the main dataset regarding emissions has only 4 features, of which 2 are identical (countries and country code). 
@@ -99,13 +100,47 @@ df_emiss <-df_emiss %>% # add dif column
   group_by(Entity) %>%
   mutate(Diff = co2 - lag(co2, default = co2[1]))
 
+df_pop_to_merge <- df_pop %>%
+  filter(Year > 1949)
+
+df_emiss_to_merge <- df_emiss %>%
+  filter(Year > 1949)
+
+df_emiss_to_merge$Entity <- as.character(df_emiss_to_merge$Entity)
+df_pop_to_merge$Entity <- as.character(df_pop_to_merge$Entity)
+
+library(dplyr)
+df_all <- full_join(df_emiss_to_merge, df_pop_to_merge, by = c('Entity','Year'))
+
+drops <- c("Code.y")
+df_all <-df_all[, !(names(df_all) %in% drops)]
+
+names(df_all)[names(df_all) == "Code.x"] <- "Code"
+
+view(df_all)
+
 #TODO add population by years to Df_emiss
 
-#TODO change column names to be same in all data, and some are imported wrong
+df_emiss_above_1950 <- df_emiss %>% filter(Year >= 1950) # filtered by years larger than 1950
+view(df_emiss_above_1950)
 
-#TODO population country names to be the same
+df_emiss <-df_emiss %>% # add dif column
+  group_by(Entity) %>%
+  mutate(Diff = co2 - lag(co2, default = co2[1]))
+view(df_emiss)
 
-#TODO add column total diff for 50 years, 40 years : until 10 years
+df_skipping_by_10 <- df_emiss_above_1950 %>% slice(which(Year %% 10 == 0 | Year == 2017))
+view(df_skipping_by_10)
+
+df_emiss <- df_skipping_by_10 %>% # add 10 years dif column
+  group_by(Entity) %>%
+  mutate(Ten_years_Diff = co2 - lag(co2, default = co2[1]))
+view(df_emiss)
+
+df_emiss <- df_emiss %>% # TODO add 20 years dif column - not done.
+  group_by(Entity) %>%
+  mutate(Tewnty_years_Diff = co2 - lag(co2, default = co2[2]))
+view(df_emiss)
 
 #TODO qeevcolumn of normalised emission: co2/population by year
 
