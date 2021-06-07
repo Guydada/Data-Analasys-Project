@@ -48,6 +48,7 @@ install.packages
 install.packages("Hmisc")# to install the relative weight package
 remotes::install_github("martinctc/rwa") # relative weight analys
 ```
+ORI BORI
 
 
 ```{r}
