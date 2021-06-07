@@ -37,7 +37,6 @@ in correlation with the current and previous UN happines Index.
 ## Packages Import
 
 ```{r}
-
 # install and import packages
 install.packages("ggchicklet", repos = "https://cinc.rud.is") # for rounded corners 
 install.packages("cowplot") #patch plots
@@ -48,7 +47,10 @@ install.packages("GGally") # correlation matrix
 install.packages
 install.packages("Hmisc")# to install the relative weight package
 remotes::install_github("martinctc/rwa") # relative weight analys
+```
 
+
+```{r}
 # import library
 library(tidyverse) 
 library(ggchicklet)
