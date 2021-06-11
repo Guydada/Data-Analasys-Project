@@ -44,11 +44,13 @@ install.packages("hrbrthemes", repos = c("https://cinc.rud.is", "https://cloud.r
 install.packages("waffle", repos = "https://cinc.rud.is") #waffle plot
 install.packages("ggalt") #dumbell plot
 install.packages("GGally") # correlation matrix
-install.packages
 install.packages("Hmisc")# to install the relative weight package
 remotes::install_github("martinctc/rwa") # relative weight analys
 install.packages("ISLR")
 install.packages("skimr")
+install.packages("ggcorrplot")
+install.packages("ggpubr")
+
 
 ```
 
@@ -67,6 +69,8 @@ library(tibble)
 library(dplyr)
 library(ISLR)
 library(skimr)
+library(ggcorrplot)
+library(ggpubr)
 ```
 #Actual Code
 
@@ -102,18 +106,20 @@ summary(df_emiss)
 ## 
 
 ```{r}
-filter(df_emiss, Year < 1950, preserve = FALSE) # TODO filter by year larger than 1950, fix code
 
-df_emiss <-df_emiss %>% # add dif column
+# add dif column
+df_emiss <-df_emiss %>% 
   group_by(Entity) %>%
   mutate(Diff = co2 - lag(co2, default = co2[1]))
 
+#filter year up 1950
 df_pop_to_merge <- df_pop %>%
   filter(Year > 1949)
 
 df_emiss_to_merge <- df_emiss %>%
   filter(Year > 1949)
 
+#arrange data to merge emission and population 
 df_emiss_to_merge$Entity <- as.character(df_emiss_to_merge$Entity)
 df_pop_to_merge$Entity <- as.character(df_pop_to_merge$Entity)
 
@@ -124,9 +130,55 @@ df_all <-df_all[, !(names(df_all) %in% drops)]
 
 names(df_all)[names(df_all) == "Code.x"] <- "Code"
 
+#add column of normalised emission: co2/population by year (avg.ratio)
 
-#TODO qeevcolumn of normalised emission: co2/population by year
+df_all <- df_all %>%
+  mutate(ratio = co2/Population)
 
+### Create dataframe for both 30 years avarage and by countries
+names(df_2005)
+names(df_2005)[names(df_2005) == "ï..Country.name"] <- "Entity"
+
+df_2017 <- df_2005 %>%
+  filter(year == 2017)%>%
+  select(c(Life.Ladder, Entity))
+
+df_last_30 <- df_all %>%
+  filter(Year >= 1987) %>%
+  na.omit()
+
+agg1 <- aggregate(df_last_30[,c('ratio', 'Population', 'co2')], list(df_last_30$Entity), mean) %>%
+  set_names(nm=c('Entity', 'avg.ratio', 'avg.Population', 'avg.co2'))
+
+agg2 <- aggregate(df_last_30[,c('Diff')], list(df_last_30$Entity), sum ) %>%
+  set_names(nm=c('Entity', 'sum.dif'))
+agg2
+
+df_2017$Entity <- as.character(df_2017$Entity)
+agg1$Entity <- as.character(agg1$Entity)
+agg2$Entity <- as.character(agg2$Entity)
+
+df_merge <- full_join(agg1, df_2017, by = c('Entity')) %>%
+  full_join(agg2) %>%
+  na.omit() # TODO check why 20 countries were removed
+```
+
+Now we creat two main dataset which we will worke with:
+1. "df_merge" which include avg of population, co2 and ratio in the last 30 years, the sum diffrent in co2 emission this period and the life-ladder in 2017.
+
+2. "df_all" which include all data per country per year from 1950 til 2017. 
+
+
+```{r}
+summary(df_merge)
+```
+```{r}
+summary(df_all)
+```
+
+```{r}
+
+skim(df_merge)
 
 ```
 
@@ -152,8 +204,8 @@ g
 ```{r}
 #TODO maybe drop this later
 
-colnames(df_2005)
-names(df_2005)[1] <- "Entity"
+#colnames(df_2005)
+#names(df_2005)[1] <- "Entity"
 
 df = filter(df_2005, Entity == "United Kingdom")
 g <- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
@@ -166,10 +218,15 @@ g
 
 ### 3.3
 
+
 ```{r}
 
+g <- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
+    geom_line()
+    
+g <- g + labs(title = "Contries Hapinness by Years")
+g
 ```
-
 ### Year-on-year change in CO₂ for Top 10 Countries
 
 ```{r}
@@ -186,16 +243,6 @@ top_countries = top_emiss_2017$Entity
 ```
 
 ```{r}
-
-g <- ggplot(data = df, aes(x = year, y = Life.Ladder, group = Entity)) + 
-    geom_line()
-    
-g <- g + labs(title = "Contries Hapinness by Years")
-g
-```
-
-
-```{r}
 g <- ggplot(data = df_emiss[df_emiss$Entity %in% top_countries, ] 
                           , aes(x = Year, y = co2, group = Entity)) + 
     geom_line() +
@@ -203,8 +250,38 @@ g <- ggplot(data = df_emiss[df_emiss$Entity %in% top_countries, ]
     geom_line(aes(col = Entity))
 g
 
-df_emiss[df_emiss$Entity %in% top_countries, ] 
+# ?? can remove
+#df_emiss[df_emiss$Entity %in% top_countries, ] 
 ```
+```{r}
+g <- ggplot(data = df_all[df_all$Entity %in% top_countries, ] 
+                          , aes(x = Year, y = ratio, group = Entity)) + 
+    geom_line(aes(col = Entity)) + 
+    labs(title = "Top 10 Countries by CO2 Emissions to population ratio")
+g
+```
+```{r}
+# TODO add density by years for top 10 countries
+```
+
+```{r}
+# TODO add boxplot for top 10 diff by year
+```
+
+```{r}
+
+top_10_happiness <- df_merge %>%
+  filter(rank(desc(Life.Ladder))<=10)
+
+
+g <- ggplot(data = df_emiss[df_emiss$Entity %in% top_10_happiness$Entity, ] 
+                          , aes(x = Year, y = co2, group = Entity)) + 
+    geom_line() +
+    labs(title = "Top 10 happiness Countries by CO2 Emissions") + 
+    geom_line(aes(col = Entity))
+g
+```
+
 
 
 ## Modelling
@@ -214,80 +291,36 @@ Our suggestions:
 2. There is correlation between current emission normalised by population to current happiness index
 
 
-### Add co2 vto population index by year
-```{r}
-df_all <- df_all %>%
-  mutate(ratio = co2/Population)
+ 
 
-g <- ggplot(data = df_all[df_all$Entity %in% top_countries, ] 
-                          , aes(x = Year, y = ratio, group = Entity)) + 
-    geom_line(aes(col = Entity)) + 
-    labs(title = "Top 10 Countries by CO2 Emissions to population ratio")
-g
-# TODO add density by years for top 10 countries
-# TODO add boxplot for top 10 diff by year
+
+```{r}
+
 ```
 ```{r}
 
-```
-
-
-### Create dataframe for both 30 yreas avarage and by countries 
-
-
-```{r}
-  
-
-df_all <- df_all %>%
-  filter(Year >= 1995) %>%
-  na.omit()
-
-
-agg1 <- aggregate(df_all[,c('ratio', 'Population', 'co2')], list(df_all$Entity), mean) %>%
-  set_names(nm=c('Entity', 'avg.ratio', 'avg.Populatio', 'avg.co2'))
-
-agg2 <- aggregate(df_all[,c('Diff')], list(df_all$Entity), sum ) %>%
-  set_names(nm=c('Entity', 'sum.dif'))
-agg2
 
 ```
 ```{r}
-df_2005 <- df_2005 %>%
-  filter(year == 2017)%>%
-  select(c(Life.Ladder, Entity))
-
-df_2005$Entity <- as.character(df_2005$Entity)
-agg1$Entity <- as.character(agg1$Entity)
-agg2$Entity <- as.character(agg2$Entity)
-
-df_all <- full_join(agg1, df_2005, by = c('Entity')) %>%
-  full_join(agg2) %>%
-  na.omit() # TODO check why 20 countries were removed
-
-df_all <- subset(df_all, Entity != "China" & Entity != "India" )
-```
-```{r}
-g <- ggplot(data = df_all, aes(x = avg.ratio, y = Life.Ladder)) + 
+g <- ggplot(data = df_merge, aes(x = avg.ratio, y = Life.Ladder)) + 
     geom_point() + 
     labs(title = "Scatter plot of avg ratio vs Happiness Index")
 g
 ```
 
 ```{r}
-g <- ggplot(data = df_all, aes(x = Life.Ladder , y = sum.dif)) + 
+df <- subset(df_merge, Entity != "China" & Entity != "India" )
+
+g <- ggplot(data = df, aes(x = Life.Ladder , y = sum.dif)) + 
     geom_point() + 
-    labs(title = "Scatter plot of sum.dif vs Happiness Index")
+    labs(title = "Scatter plot of sum.dif vs Happiness Index (without China&India)")
 g
 ```
-```{r}
 
-skim(df_all)
-
-```
  # Modelling
  
 ```{r}
-linearmod  <- lm(Life.Ladder ~ avg.ratio, data=df_all)
+linearmod  <- lm(Life.Ladder ~ avg.ratio, data=df_merge)
 
 summary(linearmod)
 
@@ -295,7 +328,7 @@ confint(linearmod, level=0.95)
 plot(fitted(linearmod),residuals(linearmod))
 
 
-g <- ggplot(df_all, aes(x = avg.ratio, y = Life.Ladder)) +
+g <- ggplot(df_merge, aes(x = avg.ratio, y = Life.Ladder)) +
   geom_point() + theme_bw() +
   stat_smooth(method = "lm")
 g
@@ -304,9 +337,8 @@ g
 ```
 
 ```{r}
-install.packages("ggcorrplot")
-library(ggcorrplot)
-numeric_tidy <- df_all[-1]
+
+numeric_tidy <- df_merge[-1]
 
 corr_data <- cor(numeric_tidy)
 
@@ -318,34 +350,68 @@ g
 
 ```
 ```{r}
-gmod  <- lm(Life.Ladder ~ log(avg.ratio), data=df_all)
+gmod  <- lm(Life.Ladder ~ log(avg.ratio), data=df_merge)
 
 summary(gmod)
 #plot x vs. y
-g <- ggplot( df_all, aes(x=log(avg.ratio), y=Life.Ladder)) +
+g <- ggplot( df_merge, aes(x=log(avg.ratio), y=Life.Ladder)) +
   geom_point() +
   geom_smooth(method = "glm", 
     method.args = list(family = "binomial"), 
     se = FALSE)
 g
 ```
-
-```{r}
-
-plot(df_all$avg.ratio, df_all$Life.Ladder)
-
-#define x-values to use for regression line
-x=seq(from=1,to=15,length.out=1000)
-
-#use the model to predict the y-values based on the x-values
-y=predict(gmod,newdata=list(x=seq(from=1,to=15,length.out=1000)),
-          interval="confidence")
-
-#add the fitted regression line to the plot (lwd specifies the width of the line)
-matlines(x,y, lwd=2)
-
-```
 # TODO re-organize, add ANIMATED/ MORE BEAUTIFULL GRPAHS
 # Add text what we need to understand and explain
 # Conclusions: present 
+
+```{r}
+#multiple regression
+multi <- lm(Life.Ladder ~ avg.ratio + sum.dif + avg.co2 , data=df_merge)
+summary(multi)
+
+```
+Now let’s say we want to compare the differences between the top 10 happiness countries avg.ratio is higher then other countries. In this case, we have two unrelated (i.e., independent or unpaired) groups of samples. Therefore, it’s possible to use an independent t-test to evaluate whether the means are different. 
+
+
+our research questions is:
+the mean of top 10 happiness (mA) is greather than the mean of other countries (mB)?
+
+H0:mA≥mB
+
+Ha:mA<mB (less)
+
+
+```{r}
+# Create a data frame
+T_data <- df_merge %>%
+  select(Entity, avg.ratio,) %>%
+  mutate(group = ifelse(Entity %in% top_10_happiness$Entity, "Top_10", "Other"))
+
+
+ggboxplot(T_data, x = "group", y = "avg.ratio", 
+          color = "group", palette = c("#00AFBB", "#E7B800"),
+        ylab = "avg.ratio", xlab = "Groups")  
+```
+
+```{r}
+#Do the two group have the same variances?
+#We’ll use F-test to test for homogeneity in variances. 
+
+res.ftest <- var.test(avg.ratio ~ group, data = T_data)
+res.ftest
+
+```
+The p-value of F-test is p = 0.03252. It’s no greater than the significance level alpha = 0.05. In conclusion, there is  significant difference between the variances of the two sets of data. Therefore, we use the t-test and assume ther is no equality of the two variances.
+
+```{r}
+
+# Compute t-test
+res <- t.test(avg.ratio ~ group, data = T_data, var.equal = FALSE, alternative = "less")
+res
+
+```
+
+
+```{r}
 
