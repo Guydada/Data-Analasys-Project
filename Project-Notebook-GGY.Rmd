@@ -373,13 +373,19 @@ summary(multi)
 ```
 Now let’s say we want to compare the differences between the top 10 happiness countries avg.ratio is higher then other countries. In this case, we have two unrelated (i.e., independent or unpaired) groups of samples. Therefore, it’s possible to use an independent t-test to evaluate whether the means are different. 
 
+mA - Weighted average of the 10 most happiest countries.
+mB - Weighted average of the rest of the countries.
 
-our research questions is:
-the mean of top 10 happiness (mA) is greather than the mean of other countries (mB)?
+Our research questions:
 
-H0:mA≥mB
 
-Ha:mA<mB (less)
+## Is the mean of top 10 happiness (mA) is greater than the mean of other countries (mB)? // Yarden - I fixed the sentence
+
+Is the weighted average of the 10 happiest countries (mA) greater than the weighted average of the other countries (mB)?
+
+H0:mA≥mB  - The null hypothesis
+
+Ha:mA<mB (less) - The alternative hypothesis
 
 
 ```{r}
@@ -387,11 +393,15 @@ Ha:mA<mB (less)
 T_data <- df_merge %>%
   select(Entity, avg.ratio,) %>%
   mutate(group = ifelse(Entity %in% top_10_happiness$Entity, "Top_10", "Other"))
+view(T_data)
 
+## Yarden - Need to add to T_data a column of Life.Ladder
+
+## TODO make a graph that shows the difference of Life Ladder and avg.ratio by groups "top_10" and "others". 
 
 ggboxplot(T_data, x = "group", y = "avg.ratio", 
           color = "group", palette = c("#00AFBB", "#E7B800"),
-        ylab = "avg.ratio", xlab = "Groups")  
+        ylab = "Group", xlab = "avg. ratio")  
 ```
 
 ```{r}
@@ -402,7 +412,7 @@ res.ftest <- var.test(avg.ratio ~ group, data = T_data)
 res.ftest
 
 ```
-The p-value of F-test is p = 0.03252. It’s no greater than the significance level alpha = 0.05. In conclusion, there is  significant difference between the variances of the two sets of data. Therefore, we use the t-test and assume ther is no equality of the two variances.
+The p-value of the F-test is p = 0.03252. It is lower than the significance level alpha = 0.05. In conclusion, there is  a significant difference between the variances of the two data sets. Therefore, we used the T-test and assumed that the variences are not equal - according to case 1 of hypothesis testing.
 
 ```{r}
 
