@@ -401,7 +401,7 @@ view(T_data)
 
 ggboxplot(T_data, x = "group", y = "avg.ratio", 
           color = "group", palette = c("#00AFBB", "#E7B800"),
-        ylab = "Group", xlab = "avg. ratio")  
+        ylab = "avg. ratio", xlab = "Group")  
 ```
 
 ```{r}
