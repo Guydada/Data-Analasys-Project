@@ -254,11 +254,10 @@ p <- plot_geo(d) %>%
 p <- ggplotly(p, width = 3000, height = 1500, automargin = TRUE)
 p
 ```
-
+Yarden - As we can see, some of the leading countries are Qatar, United Arab Emirates, Kuwait, USA, Saudi Arabia, Canada, Kazakhstan and Australia with above 15 units of CO2/population. That means countries like China and India - whose CO2 emission rate is very high comparing to other countries - are ranked lower, even though they are more polluting, because the population in them is much larger.
 
 ### Countries Emission vs Populatio by Years and continents 
 
-The following plot shows for the years 2000-2017 the amount of CO2 emitted from each country vs it's population. The ratio is shown as well as the size of each dot.
 For comfort  of the view, each country is allocated to it's fitting continent and a color. 
 
 ```{r, include=FALSE, message=FALSE, warning=FALSE}
@@ -371,7 +370,7 @@ fig <- fig %>% layout(
 fig <- fig %>% add_markers()
 fig
 ```
-
+Yarden - The graph shows the CO2 emissions of each country comparing to it's population. If we look at the United States for example, it seems that while the population has increased, the level of pollution has decreased. 
 
 ### Commulative Emissions by Countries Over the Years 1950-2017
 
@@ -396,7 +395,11 @@ pp
 
 
 ```
+Yarden - This data shows the accumulation of emissions year after year, from 1950 to 2017.
+
 ### Commulative Happinness Trends in Single Country 
+
+Yarden - This graph shows the happiness index for each country from 1950 to the present. 
 
 ```{r}
 pp <- streamgraph(df_2005, key = "Entity",
@@ -463,6 +466,8 @@ g <- ggplotly(g, height = 500,
 g
 
 ```
+Yarden - According to these two graphs, if we test the CO2 emission per person - in countries with a large population the ratio decreases. For example, Saudi Arabia has a low level of pollution, but when examining the pollution ratio per population, in 2017 Saudi Arabia had the highest emission per person ratio in the world.
+
 ### Boxplot for top 10 Countries 
 
 ```{r, collapse=TRUE, message=FALSE, echo=TRUE, warning=FALSE}
@@ -485,6 +490,7 @@ fig
 ```
 ### Top 10 Happiest countries Emmissions by Years
 
+Yarden - This graph takes the 10 happiest countries and shows their level of emission between 1800 and 2017.
 ```{r, collapse=TRUE}
 
 top_10_happiness <- df_merge %>%
@@ -517,7 +523,8 @@ g <- ggplotly(g, height = 500,
 g
 ```
 
-In the following plot we have removed china and India because they are sort of "outliers" in a sense that they have displayed much larger grow in emissions compared to other countries, therefore making it very hard to disply on the same plot. 
+In the following plot we have removed china and India because they are sort of "outliers" in a sense that they have displayed much larger grow in emissions compared to other countries, therefore making it very hard to display on the same plot.
+
 
 ```{r, collapse=TRUE}
 df <- subset(df_merge, Entity != "China" & Entity != "India" )
@@ -577,6 +584,22 @@ g
 
 
 ```
+
+Yarden - According to the model we present here, it can be seen that the correlation between the level of happiness and the CO2 emission is not high, but it can be said that there is a connection.
+Some insights can be deduced from this:
+1. The population of a counrty is not necessarily aware of the level of state pollution, so there are other factors that affect their level of happiness like welfare, health services, wealth etc.
+2. The majority of the population is not bothered by the issue of pollution. Although there are people who do care, their percentage in the population is small and therefore their impact on the level of happiness within the population is low.
+
+On the other hand:
+
+1. It can be assumed that a country that emits more CO2 is a more modern and advanced country - and therefore more established, its citizens feel a sense of progress, and that's a reason for their happiness index to rise.
+2. In more polluting countries - there is a possibility that there will be more jobs and places to work for - therefore these countries will have a lower unemployment rate - which can increase the level of happiness within the country.
+
+
+In conclusion, in our opinion, the people may be aware of their country emissions, yet the issue is not one of their first problems and they feel distant. Because of that, their sense of commitment is weak and doesn't affect their happiness.
+
+Another thing is, that people started noticing the trend of the advanced countries in the world to stop polluting and start thinking more about the environment. Countries have begun to take significant steps to reduce pollution and preserve the environment.
+
 
 ```{r, collapse = TRUE}
 
