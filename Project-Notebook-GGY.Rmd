@@ -3,9 +3,6 @@ title: "Global Trends of CO2 Emission and Effects on the Global Hapinnes Index"
 author: "Guy Krothammer, Yarden Katash, Guy Dahan"
 subtitle: Data Analysis Project - Digital Sciences for Hightech
 output:
-  html_document:
-    toc: yes
-    df_print: paged
   html_notebook:
     toc: yes
     number_section: no
@@ -13,6 +10,9 @@ output:
     fontsize: 11pt
     theme: united
     code_folding: hide
+  html_document:
+    toc: yes
+    df_print: paged
 editor_options:
   chunk_output_type: inline
 ---
@@ -271,6 +271,7 @@ d_cont<- data.frame(country = c(d$Entity))
 d_cont$continent <- countrycode(sourcevar = d_cont[, 'country'],
                             origin = "country.name",
                             destination = "continent")
+
 d$continent <- d_cont$continent
 
 d <- na.omit(d)
@@ -303,6 +304,74 @@ fig <- fig %>% layout(
 
 fig
 ```
+We would like to develop this graph forward and see it with correlation to the life ladder index from 2005-2017. For this purpose we would like to create another df, containing both happiness index scores and data from "df_all", which contains continents data as well now: 
+
+```{r, echo=FALSE}
+df_2005_2017 <- d %>%
+  filter(Year >= 2005) %>%
+  na.omit()
+temp <- df_2005[,c('Entity', 'Life.Ladder', 'year')] 
+colnames(temp)[colnames(temp) == "year"] <- "Year"
+
+df_2005_2017 <-df_2005_2017%>%
+  full_join(temp, by=c("Year", "Entity"))
+df_2005_2017
+
+df_2005_2017$Population <- as.numeric(df_2005_2017$Population)
+```
+We would receive the following plot:
+```{r, collapse=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+fig <- plot_ly(
+    data = df_2005_2017,
+    x = ~co2, 
+    y = ~Life.Ladder, 
+    size = ~ratio,
+    frame = ~Year, 
+    text = ~Entity, 
+    color = ~continent,
+    type = 'scatter',
+    mode = 'markers',
+    height = 500,
+    width = 900,
+    automargin = TRUE 
+  )
+
+fig <- fig %>% layout(
+      title = "Yearly CO2 Emissions by Countries vs Life Ladder",
+      xaxis = list(
+      type = "log"
+    )
+  )
+
+fig
+```
+And yet another scatter plot for different countries:
+```{r, warning=FALSE, message=FALSE}
+df_3d <- df_2005_2017 %>%
+  filter(Year == 2017)
+
+fig <- df_3d %>%
+  plot_ly(
+    x = ~Population, 
+    y = ~ratio, 
+    z = ~Life.Ladder,
+    # size = ~Life.Ladder,
+    # frame = ~Entity, 
+    text = ~Entity, 
+    color = ~continent,
+    height = 500,
+    width = 900,
+    automargin = TRUE 
+  )
+
+fig <- fig %>% layout(
+      title = "CO2 Emissions vs Life Ladder, Filtered by Countries, 2017"
+    )
+
+fig <- fig %>% add_markers()
+fig
+```
+
 
 ### Commulative Emissions by Countries Over the Years 1950-2017
 
