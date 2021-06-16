@@ -679,17 +679,17 @@ fig <- ggplotly(p, height = 500,
 fig
 
 ```
-Now let’s say we want to compare the differences between the top 10 happiness countries avg.ratio is higher then other countries. In this case, we have two unrelated (i.e., independent or unpaired) groups of samples. Therefore, it’s possible to use an independent t-test to evaluate whether the means are different. 
+Now let’s say we want to compare the differences between the top 30 happiness countries avg.ratio is higher then other countries. In this case, we have two unrelated (i.e., independent or unpaired) groups of samples. Therefore, it’s possible to use an independent t-test to evaluate whether the means are different. 
 
-mA - Weighted average of the 10 most happiest countries.
+mA - Weighted average of the 30 most happiest countries.
 mB - Weighted average of the rest of the countries.
 
 Our research questions:
 
 
-## Is the mean of top 10 happiness (mA) is greater than the mean of other countries (mB)? // Yarden - I fixed the sentence
+## Is the mean avg.ratio of top 30 happiness (mA) is greater than the mean of other countries (mB)? // Yarden - I fixed the sentence
 
-Is the weighted average of the 10 happiest countries (mA) greater than the weighted average of the other countries (mB)?
+Is the weighted average of the 30 happiness countries (mA) greater than the weighted average of the other countries (mB)?
 
 H0:mA≥mB  - The null hypothesis
 
@@ -697,10 +697,13 @@ Ha:mA<mB (less) - The alternative hypothesis
 
 
 ```{r}
+top_30_happiness <- df_merge %>%
+  filter(rank(desc(Life.Ladder))<=30)
+
 # Create a data frame
 T_data <- df_merge %>%
   select(Entity, avg.ratio,) %>%
-  mutate(group = ifelse(Entity %in% top_10_happiness$Entity, "Top 10 Contries", "Other Countries")) 
+  mutate(group = ifelse(Entity %in% top_30_happiness$Entity, "Top 30 Contries", "Other Countries")) 
   
 
 ## TODO Yarden - Need to add to T_data a column of Life.Ladder
@@ -711,7 +714,7 @@ g <- ggboxplot(T_data, x = "group", y = "avg.ratio",
           color = "group", palette = c("#00AFBB", "#E7B800"),
         ylab = "avg. ratio", xlab = "Group") +
   theme_ipsum() +
-  labs(title = "Average Ratio Compared - Top 10 Countries vs Other Countries")
+  labs(title = "Average Ratio Compared - Top 30 Countries vs Other Countries")
 
 g <- ggplotly(g, height = 500,
     width = 900,
@@ -729,12 +732,15 @@ res.ftest <- var.test(avg.ratio ~ group, data = T_data)
 res.ftest
 
 ```
-The p-value of the F-test is p = 0.03252. It is lower than the significance level alpha = 0.05. In conclusion, there is  a significant difference between the variances of the two data sets. Therefore, we used the T-test and assumed that the variances are not equal - according to case 1 of hypothesis testing.
+The p-value of F-test is p = 0.112 which is greater than the significance level 0.05. In conclusion, there is no significant difference between the variances of the two data sets. Therefore, we used the T-test and assumed that the variances are equal - according to case 2 of hypothesis testing.
 
 ```{r}
 
 # Compute t-test
-res <- t.test(avg.ratio ~ group, data = T_data, var.equal = FALSE, alternative = "less")
+res <- t.test(avg.ratio ~ group, data = T_data, var.equal = TRUE, alternative = "less")
 res
 
 ```
+The p-value of the test is 3.103e-07, which is less than the significance level alpha = 0.05. We can conclude that top 30 average avg.ratio is significantly different from the other countries average avg.ratio with a p-value = 3.103e-07.
+
+
