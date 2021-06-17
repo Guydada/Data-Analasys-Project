@@ -3,6 +3,9 @@ title: "Global Trends of CO2 Emission and Effects on the Global Hapinnes Index"
 author: "Guy Krothammer, Yarden Katash, Guy Dahan"
 subtitle: Data Analysis Project - Digital Sciences for Hightech
 output:
+  html_document:
+    toc: yes
+    df_print: paged
   html_notebook:
     toc: yes
     number_section: no
@@ -10,9 +13,6 @@ output:
     fontsize: 11pt
     theme: united
     code_folding: hide
-  html_document:
-    toc: yes
-    df_print: paged
 editor_options:
   chunk_output_type: inline
 ---
@@ -116,7 +116,7 @@ As seen in the table above, the main dataset regarding emissions has only 4 feat
 ```{r}
 summary(df_emiss)
 ```
-As seen above, we can see the minimal year, minimal amount of CO2 emissions and same for mean and max values. 
+As seen above, we can see the minimal year, minimal amount of CO2 emissions. Also shown are mean and max values. 
 We also learn about the size of the data, around ~21k rows. 
 
 # Part 2: Tidying the Data
@@ -169,12 +169,13 @@ df_last_30 <- df_all %>%
   filter(Year >= 1987) %>%
   na.omit()
 
-agg1 <- aggregate(df_last_30[,c('ratio', 'Population', 'co2')], list(df_last_30$Entity), mean) %>%
+agg1 <- aggregate(df_last_30[,c('ratio', 'Population', 'co2')], 
+                  list(df_last_30$Entity), mean) %>%
   set_names(nm=c('Entity', 'avg.ratio', 'avg.Population', 'avg.co2'))
 
-agg2 <- aggregate(df_last_30[,c('Diff')], list(df_last_30$Entity), sum ) %>%
+agg2 <- aggregate(df_last_30[,c('Diff')],
+                  list(df_last_30$Entity), sum ) %>%
   set_names(nm=c('Entity', 'sum.dif'))
-agg2
 
 df_2017$Entity <- as.character(df_2017$Entity)
 agg1$Entity <- as.character(agg1$Entity)
@@ -213,23 +214,21 @@ And for df_all:
 ```{r, collapse=TRUE}
 summary(df_all)
 ```
-
-```{r, collapse=TRUE}
-skim(df_merge) # TODO Mayber remove this ? seems to much
-```
-
 # Part 3: Proccesing of the Data
 
 ## Visualisation 
 
 ### Countries of the World
 In this plot the different countries in the data are shown in deeper colors for higher values of emission to population ratio in the year of 2017
+
 ```{r, fig.align='center', warning=FALSE, message=FALSE}
 d = df_all %>%
   filter(Year==2017)
+
 l <- list(color = toRGB("grey"), width = 0.2)
 
 # specify map projection/options
+
 g <- list(
   showframe = FALSE,
   showcoastlines = FALSE,
@@ -254,11 +253,12 @@ p <- plot_geo(d) %>%
 p <- ggplotly(p, width = 3000, height = 1500, automargin = TRUE)
 p
 ```
-Yarden - As we can see, some of the leading countries are Qatar, United Arab Emirates, Kuwait, USA, Saudi Arabia, Canada, Kazakhstan and Australia with above 15 units of CO2/population. That means countries like China and India - whose CO2 emission rate is very high comparing to other countries - are ranked lower, even though they are more polluting, because the population in them is much larger.
+As we can see, some of the leading countries in CO2/Population ratio are Qatar, United Arab Emirates, Kuwait, USA, Saudi Arabia, Canada, Kazakhstan and Australia with above 15 units of CO2/population.
+That means countries like China and India - whose CO2 emission rate is very high compared to other countries - are ranked lower, even though they are more polluting in net amount.
 
-### Countries Emission vs Populatio by Years and continents 
+### Countries Emission vs Population by Years and continents 
 
-For comfort  of the view, each country is allocated to it's fitting continent and a color. 
+For comfortably displaying the data, each country is allocated to it's fitting continent and a color. 
 
 ```{r, include=FALSE, message=FALSE, warning=FALSE}
 d <- df_all %>%
@@ -318,7 +318,7 @@ df_2005_2017
 
 df_2005_2017$Population <- as.numeric(df_2005_2017$Population)
 ```
-We would receive the following plot:
+We get the following plot:
 ```{r, collapse=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
 fig <- plot_ly(
     data = df_2005_2017,
@@ -370,12 +370,12 @@ fig <- fig %>% layout(
 fig <- fig %>% add_markers()
 fig
 ```
-Yarden - The graph shows the CO2 emissions of each country comparing to it's population. If we look at the United States for example, it seems that while the population has increased, the level of pollution has decreased. 
+This graph shows the CO2 emissions of each country compared to it's population and Life Ladder score. If we look at the United States for example, it seems that while the population has increased, the level of pollution has decreased. 
 
 ### Commulative Emissions by Countries Over the Years 1950-2017
 
 ```{r, message=FALSE}
-# d <- df_all[ , c("Entity", "Year", "Population")]
+
 d <- df_all %>%
   filter(Entity != "World") %>%
   filter(co2 != 0)
@@ -395,13 +395,13 @@ pp
 
 
 ```
-Yarden - This data shows the accumulation of emissions year after year, from 1950 to 2017.
+This plot shows the accumulation of emissions year after year, from 1950 to 2017 for different countries.
 
 ### Commulative Happinness Trends in Single Country 
 
-Yarden - This graph shows the happiness index for each country from 1950 to the present. 
+This graph shows the accumulative happiness index for each country from 2005 to the present. 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 pp <- streamgraph(df_2005, key = "Entity",
                   # order = "reverse",
                   value="Life.Ladder", 
@@ -412,16 +412,8 @@ pp <- streamgraph(df_2005, key = "Entity",
   sg_legend(show=TRUE, label="Country: ") %>%
   sg_title("Happiness Index by Years and Countries, 1950-2017") 
   
-
 pp
-# g <- ggplot(data = df_2005, aes(x = year, y = Life.Ladder, group = Entity)) + 
-#     geom_line() + 
-#     geom_line(color="#69b3a2") +
-#     theme_ipsum()
-#     
-# g <- g + labs(title = "Contries Hapinness by Years")
-# g <- ggplotly(g)
-# g
+
 
 ```
 
@@ -466,7 +458,7 @@ g <- ggplotly(g, height = 500,
 g
 
 ```
-Yarden - According to these two graphs, if we test the CO2 emission per person - in countries with a large population the ratio decreases. For example, Saudi Arabia has a low level of pollution, but when examining the pollution ratio per population, in 2017 Saudi Arabia had the highest emission per person ratio in the world.
+According to these two graphs, using the CO2/Population ratio. For example, Saudi Arabia has a lower population than china, but in terms of pollution per person in 2017 Saudi Arabia had the highest emission per person ratio in the world.
 
 ### Boxplot for top 10 Countries 
 
@@ -490,7 +482,9 @@ fig
 ```
 ### Top 10 Happiest countries Emmissions by Years
 
-Yarden - This graph takes the 10 happiest countries and shows their level of emission between 1800 and 2017.
+This graph takes the 10 happiest countries and shows the distribution of CO2 emissions difference level of emission between 1950 and 2017.
+
+
 ```{r, collapse=TRUE}
 
 top_10_happiness <- df_merge %>%
@@ -570,6 +564,9 @@ p<- p %>% layout(
 p
 ```
 
+# TODO add here EXPLANATION
+The residual plot shows no signs of 
+
 
 ```{r, collapse=TRUE}
 g <- ggplot(df_merge, aes(x = avg.ratio, y = Life.Ladder)) +
@@ -585,20 +582,7 @@ g
 
 ```
 
-Yarden - According to the model we present here, it can be seen that the correlation between the level of happiness and the CO2 emission is not high, but it can be said that there is a connection.
-Some insights can be deduced from this:
-1. The population of a counrty is not necessarily aware of the level of state pollution, so there are other factors that affect their level of happiness like welfare, health services, wealth etc.
-2. The majority of the population is not bothered by the issue of pollution. Although there are people who do care, their percentage in the population is small and therefore their impact on the level of happiness within the population is low.
-
-On the other hand:
-
-1. It can be assumed that a country that emits more CO2 is a more modern and advanced country - and therefore more established, its citizens feel a sense of progress, and that's a reason for their happiness index to rise.
-2. In more polluting countries - there is a possibility that there will be more jobs and places to work for - therefore these countries will have a lower unemployment rate - which can increase the level of happiness within the country.
-
-
-In conclusion, in our opinion, the people may be aware of their country emissions, yet the issue is not one of their first problems and they feel distant. Because of that, their sense of commitment is weak and doesn't affect their happiness.
-
-Another thing is, that people started noticing the trend of the advanced countries in the world to stop polluting and start thinking more about the environment. Countries have begun to take significant steps to reduce pollution and preserve the environment.
+According to the model, it can be seen that the correlation between the happiness index and the CO2 emission is not high, but it does exist. We will discuss it in the conclusions section.
 
 
 ```{r, collapse = TRUE}
@@ -611,7 +595,6 @@ g <- ggcorrplot(corr_data, hc.order = TRUE, type = "lower",
    outline.col = "white") +
   labs(title = "Correlation Matrix") +
   theme_ipsum()
-   # colors = c("darkolivegreen2", "white", "darkolivegreen"))
 
 ax <- list(
   title = "",
@@ -625,6 +608,7 @@ g
 
 
 ```
+We can see in the matrix above that there are some correlation that are easy to explain, such as a pretty strong one between the sum of differences regarding emissions over the test period, to the average size of population. There is also a weaker but existing correlation between the life ladder scale and the average ratio of CO2/Population size. 
 The following section presents another model and it's summary:
 
 ```{r, collapse=TRUE, warning=FALSE}
@@ -647,53 +631,29 @@ p <- ggplotly(p, height = 500,
     automargin = TRUE)
 p
 ```
-On this model, We can see a week correlation, but an existing one to the logistic regression. Interestingly enough, The "happiest" countries seem to have a higher ratio of CO2 emissions as well. Also worth mentioning from this plot:
+On this model, We can see a weak correlation, but an existing one to the logistic regression. Interestingly enough, The "happiest" countries seem to have a higher ratio of CO2 emissions as well. Also worth mentioning from this plot:
 * The US is located far right on this map, meaning it's emitting a lot of CO2 in proportion to it's population, but it is pretty high on the happiness index as well. 
 * Kuwait, being the leader of this unfortunate characteristic, also has a pretty decent Life Ladder score. 
-*
 
-# Add text what we need to understand and explain
-# Conclusions: present 
 
-```{r, collapse=TRUE}
-#multiple regression
-ex_list <- c("China", "India", "United States")
+## Testing the Top 30 Happiest Countries
 
-d <- df_merge[(!(df_merge$Entity %in% ex_list)),]
 
-x <- d$avg.ratio + d$sum.dif + d$avg.co2
+To further check existing correlation, we would compare the differences between the 30 top rated countries in the happiness index and their avg.ratio of CO2/Population. 
+In this case, we have two unrelated (i.e., independent or unpaired) groups of samples. Therefore, it is possible to use an independent t-test to evaluate how their means differ. 
 
-multi <- lm(Life.Ladder ~ x, data=d)
-p <- qplot(x, Life.Ladder,  data=d)
-p <- p + 
-  geom_smooth(method = "lm",
-                     formula = y~x, family = binomial(link = 'log')) +
-  geom_point(aes(colour=Entity)) +
-  theme_ipsum() +
-  labs(title = "Linear Regression Model -Multiple Variables to Life Ladder Score")
-
-fig <- ggplotly(p, height = 500,
-    width = 900,
-    automargin = TRUE)
-
-fig
-
-```
-Now let’s say we want to compare the differences between the top 30 happiness countries avg.ratio is higher then other countries. In this case, we have two unrelated (i.e., independent or unpaired) groups of samples. Therefore, it’s possible to use an independent t-test to evaluate whether the means are different. 
-
-mA - Weighted average of the 30 most happiest countries.
-mB - Weighted average of the rest of the countries.
+* $mA$ - Weighted average of the 30 most happiest countries.
+* $mB$ - Weighted average of the rest of the countries.
 
 Our research questions:
 
+* Is the mean avg.ratio of top 30 happiness ($mA$) is greater than the mean of other countries ($mB$)? 
 
-## Is the mean avg.ratio of top 30 happiness (mA) is greater than the mean of other countries (mB)? // Yarden - I fixed the sentence
+* Is the weighted average of the 30 happiness countries (mA) greater than the weighted average of the other countries ($mB$)?
 
-Is the weighted average of the 30 happiness countries (mA) greater than the weighted average of the other countries (mB)?
+H0: $mA ≥ mB $  - The null hypothesis
 
-H0:mA≥mB  - The null hypothesis
-
-Ha:mA<mB (less) - The alternative hypothesis
+Ha: $mA < mB $ (less) - The alternative hypothesis
 
 
 ```{r}
@@ -704,11 +664,6 @@ top_30_happiness <- df_merge %>%
 T_data <- df_merge %>%
   select(Entity, avg.ratio,) %>%
   mutate(group = ifelse(Entity %in% top_30_happiness$Entity, "Top 30 Contries", "Other Countries")) 
-  
-
-## TODO Yarden - Need to add to T_data a column of Life.Ladder
-
-## TODO make a graph that shows the difference of Life Ladder and avg.ratio by groups "top_10" and "others". 
 
 g <- ggboxplot(T_data, x = "group", y = "avg.ratio", 
           color = "group", palette = c("#00AFBB", "#E7B800"),
@@ -724,15 +679,18 @@ g
 
 ```
 
-```{r}
-#Do the two group have the same variances?
-#We’ll use F-test to test for homogeneity in variances. 
+Although not dramatic, it is obvious that some correlation does exist. We would like to further check:
 
+* Do the two group have the same variances?
+* We will use F-test to test for homogeneity in variances. 
+
+```{r}
 res.ftest <- var.test(avg.ratio ~ group, data = T_data)
 res.ftest
 
 ```
-The p-value of F-test is p = 0.112 which is greater than the significance level 0.05. In conclusion, there is no significant difference between the variances of the two data sets. Therefore, we used the T-test and assumed that the variances are equal - according to case 2 of hypothesis testing.
+The p-value of F-test is p = 0.112 which is greater than the significance level 0.05.
+In conclusion, there is no significant difference between the variances of the two data sets. Therefore, we used the T-test and assumed that the variances are equal - according to case 2 of hypothesis testing.
 
 ```{r}
 
@@ -741,6 +699,26 @@ res <- t.test(avg.ratio ~ group, data = T_data, var.equal = TRUE, alternative = 
 res
 
 ```
-The p-value of the test is 3.103e-07, which is less than the significance level alpha = 0.05. We can conclude that top 30 average avg.ratio is significantly different from the other countries average avg.ratio with a p-value = 3.103e-07.
+The p-value of the test is $3.103e-07$, which is less than the significance level $\alpha = 0.05$. We can conclude that top 30 average avg.ratio is significantly different from the other countries average avg.ratio with a $pvalue = 3.103e-07$.
+
+# Conclussion
+
+Generally, regarding our base assumptions, we were surprised to see that they were actually not only wrong, but almost opposite. while very undeveloped countries, like countries in Africa mostly, have a very low pollution index and life ladder index. On the other hand, some very developed countries have higher values on both indexes. There are also a lot of countries who don't fit those assumptions at all. 
+
+Although, our final tests did show some weak correlation within the top 30 countries as shown.  
+
+we stipulate that these weak correlations are caused partially because of the fact that the happiness index is a *survey* based data. 
+it means that it is possible that the citizens of a country are not necessarily aware of the CO2 pollution and it's consequences. There are also other factors that affect the happiness index like welfare , corruption,  health services, wealth etc.
+
+On the other hand:
+1. It can be assumed that a country that emits more CO2 is a more modern and technologically advanced country, therefore it is more established, its citizens feel a sense of progress, and that causes the happiness index to rise.
+2. In more polluting countries - it is a possible that there are more workplaces, therefore these countries will have a lower unemployment rate - which can in turn increase the level of happiness index within the country.
+
+
+In conclusion, in our opinion, the people may be aware of their country CO2 emissions, yet it doesn't necessarily show in the happiness index survey.
+
+Another thing to consider is that environmental preservation, pollution reduction and global warming are quite trending in the last few years, but this is a very complex system of dependencies, and the rate of which changes are noticeable is rapidly changing. It is unknown whether we have crossed the non-return point for making the planet to hot to live at due to those emissions, but time will tell. 
+
+
 
 
