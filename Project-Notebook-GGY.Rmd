@@ -190,8 +190,8 @@ df_merge
 
 We have just created the two main datasets to work with, which includes important features from all of the previous datasets and some features that we have created above:
 
-1. "df_all" which include all data per country per year from 1950 til 2017, introducing some new features:
-  * Population, taken from the the population's DF
+1. "df_all" which include all data per country per year from 1950 until 2017, introducing some new features:
+  * Population, taken from the population's DF
   * CO2/Population ratio, calculated.
   * "Diff" column, which shows the difference between the previous and the current year emissions for each consecutive year.
   
@@ -219,7 +219,7 @@ summary(df_all)
 ## Visualisation 
 
 ### Countries of the World
-In this plot the different countries in the data are shown in deeper colors for higher values of emission to population ratio in the year of 2017
+In this plot the different countries in the data are shown in deeper colors for higher values of emission to population ratio in the year of 2017:
 
 ```{r, fig.align='center', warning=FALSE, message=FALSE}
 d = df_all %>%
@@ -256,7 +256,7 @@ p
 As we can see, some of the leading countries in CO2/Population ratio are Qatar, United Arab Emirates, Kuwait, USA, Saudi Arabia, Canada, Kazakhstan and Australia with above 15 units of CO2/population.
 That means countries like China and India - whose CO2 emission rate is very high compared to other countries - are ranked lower, even though they are more polluting in net amount.
 
-### Countries Emission vs Population by Years and continents 
+### Countries Emission vs Population by Years and Continents 
 
 For comfortably displaying the data, each country is allocated to it's fitting continent and a color. 
 
@@ -344,6 +344,8 @@ fig <- fig %>% layout(
 
 fig
 ```
+This graph shows the CO2 emissions of each country compared to it's population and Life Ladder score. If we look at the United States for example, it seems that while the population has increased, the level of pollution has decreased.
+
 And yet another scatter plot for different countries:
 ```{r, warning=FALSE, message=FALSE}
 df_3d <- df_2005_2017 %>%
@@ -364,14 +366,12 @@ fig <- df_3d %>%
   )
 
 fig <- fig %>% layout(
-      title = "CO2 Emissions vs Life Ladder, Filtered by Countries, 2017"
+      title = "CO2 Emissions vs Life Ladder vs Population by Countries"
     )
 
 fig <- fig %>% add_markers()
 fig
 ```
-This graph shows the CO2 emissions of each country compared to it's population and Life Ladder score. If we look at the United States for example, it seems that while the population has increased, the level of pollution has decreased. 
-
 ### Commulative Emissions by Countries Over the Years 1950-2017
 
 ```{r, message=FALSE}
@@ -449,7 +449,7 @@ g
 g <- ggplot(data = df_all[df_all$Entity %in% top_countries, ] 
                           , aes(x = Year, y = ratio, group = Entity)) + 
     geom_line(aes(col = Entity)) + 
-    labs(title = "Top 10 Countries by CO2 Emissions to Population ratio") +
+    labs(title = "Top 10 Countries by CO2 Emissions to Population Ratio") +
     theme_ipsum()
 
 g <- ggplotly(g, height = 500,
@@ -458,7 +458,7 @@ g <- ggplotly(g, height = 500,
 g
 
 ```
-According to these two graphs, using the CO2/Population ratio. For example, Saudi Arabia has a lower population than china, but in terms of pollution per person in 2017 Saudi Arabia had the highest emission per person ratio in the world.
+According to these two graphs, using the CO2/Population ratio we can see that Saudi Arabia for example has a lower population than china, but in terms of pollution per person in 2017 Saudi Arabia had the highest emission per person ratio in the world.
 
 ### Boxplot for top 10 Countries 
 
@@ -493,7 +493,7 @@ top_10_happiness <- df_merge %>%
 g <- ggplot(data = df_emiss[df_emiss$Entity %in% top_10_happiness$Entity, ] 
                           , aes(x = Year, y = co2, group = Entity)) + 
     geom_line() +
-    labs(title = "Top 10 happiness Countries by CO2 Emissions") + 
+    labs(title = "Top 10 Happiest Countries by CO2 Emissions") + 
     theme_ipsum() +
     geom_line(aes(col = Entity))
 g <- ggplotly(g, height = 500,
@@ -564,6 +564,8 @@ p<- p %>% layout(
 p
 ```
 
+According to the graph shown above, the point distances from the X-axis are relatively equal. It's not unequivocally, however, we state that this graph is homoscedastic.
+
 # TODO add here EXPLANATION
 The residual plot shows no signs of 
 
@@ -609,7 +611,7 @@ g
 
 ```
 We can see in the matrix above that there are some correlation that are easy to explain, such as a pretty strong one between the sum of differences regarding emissions over the test period, to the average size of population. There is also a weaker but existing correlation between the life ladder scale and the average ratio of CO2/Population size. 
-The following section presents another model and it's summary:
+The following section presents another model and its summary:
 
 ```{r, collapse=TRUE, warning=FALSE}
 gmod  <- lm(Life.Ladder ~ log(avg.ratio), data=df_merge)
@@ -632,7 +634,7 @@ p <- ggplotly(p, height = 500,
 p
 ```
 On this model, We can see a weak correlation, but an existing one to the logistic regression. Interestingly enough, The "happiest" countries seem to have a higher ratio of CO2 emissions as well. Also worth mentioning from this plot:
-* The US is located far right on this map, meaning it's emitting a lot of CO2 in proportion to it's population, but it is pretty high on the happiness index as well. 
+* The US is located far right on this map, meaning it's emitting a lot of CO2 in proportion to its population, but it is pretty high on the happiness index as well. 
 * Kuwait, being the leader of this unfortunate characteristic, also has a pretty decent Life Ladder score. 
 
 
@@ -647,13 +649,13 @@ In this case, we have two unrelated (i.e., independent or unpaired) groups of sa
 
 Our research questions:
 
-* Is the mean avg.ratio of top 30 happiness ($mA$) is greater than the mean of other countries ($mB$)? 
+* Is the mean avg.ratio of top 30 happiest countries ($mA$) is greater than the mean of other countries ($mB$)? 
 
-* Is the weighted average of the 30 happiness countries (mA) greater than the weighted average of the other countries ($mB$)?
+* Is the weighted average of the 30 happiest countries ($mA$) greater than the weighted average of the other countries ($mB$)?
 
-H0: $mA ≥ mB $  - The null hypothesis
+H0: $mA$ ≥ $mB$  - The null hypothesis
 
-Ha: $mA < mB $ (less) - The alternative hypothesis
+Ha: $mA$ < $mB$ (less) - The alternative hypothesis
 
 
 ```{r}
@@ -705,7 +707,7 @@ The p-value of the test is $3.103e-07$, which is less than the significance leve
 
 Generally, regarding our base assumptions, we were surprised to see that they were actually not only wrong, but almost opposite. while very undeveloped countries, like countries in Africa mostly, have a very low pollution index and life ladder index. On the other hand, some very developed countries have higher values on both indexes. There are also a lot of countries who don't fit those assumptions at all. 
 
-Although, our final tests did show some weak correlation within the top 30 countries as shown.  
+Despite this, our final tests did show some weak correlation within the top 30 countries as shown.
 
 we stipulate that these weak correlations are caused partially because of the fact that the happiness index is a *survey* based data. 
 it means that it is possible that the citizens of a country are not necessarily aware of the CO2 pollution and it's consequences. There are also other factors that affect the happiness index like welfare , corruption,  health services, wealth etc.
@@ -717,7 +719,7 @@ On the other hand:
 
 In conclusion, in our opinion, the people may be aware of their country CO2 emissions, yet it doesn't necessarily show in the happiness index survey.
 
-Another thing to consider is that environmental preservation, pollution reduction and global warming are quite trending in the last few years, but this is a very complex system of dependencies, and the rate of which changes are noticeable is rapidly changing. It is unknown whether we have crossed the non-return point for making the planet to hot to live at due to those emissions, but time will tell. 
+Another thing to consider is that environmental preservation, pollution reduction and global warming are quite trending in the last few years, but this is a very complex system of dependencies, and the rate of which changes are noticeable is rapidly changing. It is unknown whether we have crossed the non-return point for making the planet too hot to live at due to those emissions, but time will tell. 
 
 
 
