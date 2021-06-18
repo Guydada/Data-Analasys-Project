@@ -3,9 +3,8 @@ title: "Global Trends of CO2 Emission and Effects on the Global Hapinnes Index"
 author: "Guy Krothammer, Yarden Katash, Guy Dahan"
 subtitle: Data Analysis Project - Digital Sciences for Hightech
 output:
-  html_document:
+  html_document: 
     toc: yes
-    df_print: paged
   html_notebook:
     toc: yes
     number_section: no
@@ -566,9 +565,6 @@ p
 
 According to the graph shown above, the point distances from the X-axis are relatively equal. It's not unequivocally, however, we state that this graph is homoscedastic.
 
-# TODO add here EXPLANATION
-The residual plot shows no signs of 
-
 
 ```{r, collapse=TRUE}
 g <- ggplot(df_merge, aes(x = avg.ratio, y = Life.Ladder)) +
@@ -720,7 +716,6 @@ On the other hand:
 In conclusion, in our opinion, the people may be aware of their country CO2 emissions, yet it doesn't necessarily show in the happiness index survey.
 
 Another thing to consider is that environmental preservation, pollution reduction and global warming are quite trending in the last few years, but this is a very complex system of dependencies, and the rate of which changes are noticeable is rapidly changing. It is unknown whether we have crossed the non-return point for making the planet too hot to live at due to those emissions, but time will tell. 
-
 
 
 
